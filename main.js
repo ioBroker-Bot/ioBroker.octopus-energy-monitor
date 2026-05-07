@@ -87,6 +87,12 @@ class EnergyCompare extends utils.Adapter {
 		});
 
 		if (this.config.inexogyEmail) {
+			await this.setObjectNotExistsAsync('inexogy.info', {
+				type: 'channel',
+				common: { name: 'Inexogy Master Data' },
+				native: {},
+			});
+
 			await this.setObjectNotExistsAsync('inexogy.historyJson', {
 				type: 'state',
 				common: {
@@ -567,6 +573,54 @@ class EnergyCompare extends utils.Adapter {
 		}
 	}
 
+	async fetchInexogyMasterData() {
+		try {
+			const basicAuth = Buffer.from(`${this.config.inexogyEmail}:${this.config.inexogyPassword}`).toString('base64');
+			const headers = { Authorization: `Basic ${basicAuth}` };
+
+			const meterRes = await axios.get('https://api.inexogy.com/public/v1/meters', { headers, validateStatus: () => true });
+			if (meterRes.status !== 200 || !meterRes.data || meterRes.data.length === 0) {
+				this.log.warn('Failed to fetch Inexogy meter master data');
+				return null;
+			}
+
+			const meter = meterRes.data[0];
+			this.inexogyMeterId = meter.meterId;
+
+			await this.writeStateObject('inexogy.info.meterId', 'Meter ID', meter.meterId, 'text', 'string');
+			await this.writeStateObject('inexogy.info.manufacturerId', 'Manufacturer ID', meter.manufacturerId || '', 'text', 'string');
+			await this.writeStateObject('inexogy.info.serialNumber', 'Serial Number', meter.serialNumber || '', 'text', 'string');
+			await this.writeStateObject('inexogy.info.fullSerialNumber', 'Full Serial Number', meter.fullSerialNumber || '', 'text', 'string');
+
+			if (meter.location) {
+				await this.writeStateObject('inexogy.info.street', 'Street', meter.location.street || '', 'text', 'string');
+				await this.writeStateObject('inexogy.info.city', 'City', meter.location.city || '', 'text', 'string');
+				await this.writeStateObject('inexogy.info.zip', 'ZIP Code', meter.location.zip || '', 'text', 'string');
+			}
+
+			const readingRes = await axios.get(`https://api.inexogy.com/public/v1/last_reading?meterId=${this.inexogyMeterId}`, { headers, validateStatus: () => true });
+			if (readingRes.status === 200 && readingRes.data) {
+				if (readingRes.data.time) {
+					await this.writeStateObject('inexogy.info.lastReadingTime', 'Last Reading Time', new Date(readingRes.data.time).toLocaleString(), 'text', 'string');
+				}
+				if (readingRes.data.values) {
+					if (readingRes.data.values.energy !== undefined) {
+						const kwh = readingRes.data.values.energy / 10000000000;
+						await this.writeStateObject('inexogy.info.lastReadingEnergy', 'Last Reading Energy', parseFloat(kwh.toFixed(3)), 'value', 'number', 'kWh');
+					}
+					if (readingRes.data.values.power !== undefined) {
+						const powerW = readingRes.data.values.power / 1000;
+						await this.writeStateObject('inexogy.info.lastReadingPower', 'Current Power', parseFloat(powerW.toFixed(3)), 'value.power', 'number', 'W');
+					}
+				}
+			}
+
+			this.log.info('Inexogy master data and last reading fetched and updated.');
+		} catch (error) {
+			this.log.error(`Failed to fetch Inexogy master data: ${error.message}`);
+		}
+	}
+
 	async syncData() {
 		await this.cleanupLegacyHistory();
 		const syncDays = Number(this.config.syncDays) || 30;
@@ -576,6 +630,10 @@ class EnergyCompare extends utils.Adapter {
 		if (!masterData) {
 			this.log.warn('Aborting sync because master data could not be fetched.');
 			return;
+		}
+
+		if (this.hasInexogy) {
+			await this.fetchInexogyMasterData();
 		}
 
 		try {
