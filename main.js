@@ -35,9 +35,12 @@ class EnergyCompare extends utils.Adapter {
 		const intervalMinutes = this.config.updateInterval || 60;
 		this.log.info(`Scheduling data sync every ${intervalMinutes} minutes.`);
 
-		this.syncInterval = this.setInterval(() => {
-			this.syncData();
-		}, intervalMinutes * 60 * 1000);
+		this.syncInterval = this.setInterval(
+			() => {
+				this.syncData();
+			},
+			intervalMinutes * 60 * 1000,
+		);
 
 		this.subscribeStates('octopus.devices.*.smartChargeActive');
 
@@ -232,7 +235,11 @@ class EnergyCompare extends utils.Adapter {
 					this.octopusAuthToken = null;
 					return await this.fetchOctopusMasterData(false);
 				}
-				throw new Error('Master data fetch failed: ' + (dataRes.data?.errors ? JSON.stringify(dataRes.data.errors) : dataRes.statusText));
+				throw new Error(
+					`Master data fetch failed: ${
+						dataRes.data?.errors ? JSON.stringify(dataRes.data.errors) : dataRes.statusText
+					}`,
+				);
 			}
 
 			const account = dataRes.data.data.account;
@@ -578,10 +585,15 @@ class EnergyCompare extends utils.Adapter {
 
 	async fetchInexogyMasterData() {
 		try {
-			const basicAuth = Buffer.from(`${this.config.inexogyEmail}:${this.config.inexogyPassword}`).toString('base64');
+			const basicAuth = Buffer.from(`${this.config.inexogyEmail}:${this.config.inexogyPassword}`).toString(
+				'base64',
+			);
 			const headers = { Authorization: `Basic ${basicAuth}` };
 
-			const meterRes = await axios.get('https://api.inexogy.com/public/v1/meters', { headers, validateStatus: () => true });
+			const meterRes = await axios.get('https://api.inexogy.com/public/v1/meters', {
+				headers,
+				validateStatus: () => true,
+			});
 			if (meterRes.status !== 200 || !meterRes.data || meterRes.data.length === 0) {
 				this.log.warn('Failed to fetch Inexogy meter master data');
 				return null;
@@ -591,33 +603,87 @@ class EnergyCompare extends utils.Adapter {
 			this.inexogyMeterId = meter.meterId;
 
 			await this.writeStateObject('inexogy.info.meterId', 'Meter ID', meter.meterId, 'text', 'string');
-			await this.writeStateObject('inexogy.info.manufacturerId', 'Manufacturer ID', meter.manufacturerId || '', 'text', 'string');
-			await this.writeStateObject('inexogy.info.serialNumber', 'Serial Number', meter.serialNumber || '', 'text', 'string');
-			await this.writeStateObject('inexogy.info.fullSerialNumber', 'Full Serial Number', meter.fullSerialNumber || '', 'text', 'string');
+			await this.writeStateObject(
+				'inexogy.info.manufacturerId',
+				'Manufacturer ID',
+				meter.manufacturerId || '',
+				'text',
+				'string',
+			);
+			await this.writeStateObject(
+				'inexogy.info.serialNumber',
+				'Serial Number',
+				meter.serialNumber || '',
+				'text',
+				'string',
+			);
+			await this.writeStateObject(
+				'inexogy.info.fullSerialNumber',
+				'Full Serial Number',
+				meter.fullSerialNumber || '',
+				'text',
+				'string',
+			);
 
 			if (meter.location) {
-				await this.writeStateObject('inexogy.info.street', 'Street', meter.location.street || '', 'text', 'string');
+				await this.writeStateObject(
+					'inexogy.info.street',
+					'Street',
+					meter.location.street || '',
+					'text',
+					'string',
+				);
 				await this.writeStateObject('inexogy.info.city', 'City', meter.location.city || '', 'text', 'string');
 				await this.writeStateObject('inexogy.info.zip', 'ZIP Code', meter.location.zip || '', 'text', 'string');
 			}
 
-			const readingRes = await axios.get(`https://api.inexogy.com/public/v1/last_reading?meterId=${this.inexogyMeterId}`, { headers, validateStatus: () => true });
+			const readingRes = await axios.get(
+				`https://api.inexogy.com/public/v1/last_reading?meterId=${this.inexogyMeterId}`,
+				{ headers, validateStatus: () => true },
+			);
 			if (readingRes.status === 200 && readingRes.data) {
 				if (readingRes.data.time) {
-					await this.writeStateObject('inexogy.info.lastReadingTime', 'Last Reading Time', new Date(readingRes.data.time).toLocaleString(), 'text', 'string');
+					await this.writeStateObject(
+						'inexogy.info.lastReadingTime',
+						'Last Reading Time',
+						new Date(readingRes.data.time).toLocaleString(),
+						'text',
+						'string',
+					);
 				}
 				if (readingRes.data.values) {
 					if (readingRes.data.values.energy !== undefined) {
 						const kwh = readingRes.data.values.energy / 10000000000;
-						await this.writeStateObject('inexogy.info.lastReadingEnergy', 'Last Reading Energy (Bezug)', parseFloat(kwh.toFixed(3)), 'value', 'number', 'kWh');
+						await this.writeStateObject(
+							'inexogy.info.lastReadingEnergy',
+							'Last Reading Energy (Bezug)',
+							parseFloat(kwh.toFixed(3)),
+							'value',
+							'number',
+							'kWh',
+						);
 					}
 					if (readingRes.data.values.energyOut !== undefined) {
 						const kwhOut = readingRes.data.values.energyOut / 10000000000;
-						await this.writeStateObject('inexogy.info.lastReadingEnergyOut', 'Last Reading Energy Out (Einspeisung)', parseFloat(kwhOut.toFixed(3)), 'value', 'number', 'kWh');
+						await this.writeStateObject(
+							'inexogy.info.lastReadingEnergyOut',
+							'Last Reading Energy Out (Einspeisung)',
+							parseFloat(kwhOut.toFixed(3)),
+							'value',
+							'number',
+							'kWh',
+						);
 					}
 					if (readingRes.data.values.power !== undefined) {
 						const powerW = readingRes.data.values.power / 1000;
-						await this.writeStateObject('inexogy.info.lastReadingPower', 'Current Power', parseFloat(powerW.toFixed(3)), 'value.power', 'number', 'W');
+						await this.writeStateObject(
+							'inexogy.info.lastReadingPower',
+							'Current Power',
+							parseFloat(powerW.toFixed(3)),
+							'value.power',
+							'number',
+							'W',
+						);
 					}
 				}
 			}
@@ -630,7 +696,9 @@ class EnergyCompare extends utils.Adapter {
 
 	async fetchOctopusDevices() {
 		try {
-			if (!this.octopusAuthToken || !this.config.octopusAccount) return;
+			if (!this.octopusAuthToken || !this.config.octopusAccount) {
+				return;
+			}
 
 			const apiDomain = 'https://api.oeg-kraken.energy/v1/graphql/';
 			const payload = {
@@ -655,38 +723,107 @@ class EnergyCompare extends utils.Adapter {
 			if (res.status === 200 && res.data?.data?.devices) {
 				const devices = res.data.data.devices;
 				for (const device of devices) {
-					if (!device.id) continue;
+					if (!device.id) {
+						continue;
+					}
 					const basePath = `octopus.devices.${device.id}`;
-					
-					await this.setObjectNotExistsAsync(`octopus.devices`, { type: 'channel', common: { name: 'Octopus Devices' }, native: {} });
-					await this.setObjectNotExistsAsync(basePath, { type: 'channel', common: { name: device.name || 'Device' }, native: {} });
+
+					await this.setObjectNotExistsAsync(`octopus.devices`, {
+						type: 'channel',
+						common: { name: 'Octopus Devices' },
+						native: {},
+					});
+					await this.setObjectNotExistsAsync(basePath, {
+						type: 'channel',
+						common: { name: device.name || 'Device' },
+						native: {},
+					});
 
 					await this.writeStateObject(`${basePath}.name`, 'Device Name', device.name || '', 'text', 'string');
-					await this.writeStateObject(`${basePath}.provider`, 'Provider', device.provider || '', 'text', 'string');
-					await this.writeStateObject(`${basePath}.deviceType`, 'Device Type', device.deviceType || '', 'text', 'string');
-					await this.writeStateObject(`${basePath}.integrationDeviceId`, 'Integration Device ID', device.integrationDeviceId || '', 'text', 'string');
+					await this.writeStateObject(
+						`${basePath}.provider`,
+						'Provider',
+						device.provider || '',
+						'text',
+						'string',
+					);
+					await this.writeStateObject(
+						`${basePath}.deviceType`,
+						'Device Type',
+						device.deviceType || '',
+						'text',
+						'string',
+					);
+					await this.writeStateObject(
+						`${basePath}.integrationDeviceId`,
+						'Integration Device ID',
+						device.integrationDeviceId || '',
+						'text',
+						'string',
+					);
 
 					if (device.status) {
-						await this.writeStateObject(`${basePath}.status.current`, 'Current Status', device.status.current || '', 'text', 'string');
-						await this.writeStateObject(`${basePath}.status.currentState`, 'Current State', device.status.currentState || '', 'text', 'string');
-						
+						await this.writeStateObject(
+							`${basePath}.status.current`,
+							'Current Status',
+							device.status.current || '',
+							'text',
+							'string',
+						);
+						await this.writeStateObject(
+							`${basePath}.status.currentState`,
+							'Current State',
+							device.status.currentState || '',
+							'text',
+							'string',
+						);
+
 						if (device.status.stateOfCharge && device.status.stateOfCharge.value) {
-							await this.writeStateObject(`${basePath}.status.stateOfCharge`, 'State of Charge', parseFloat(device.status.stateOfCharge.value), 'value.battery', 'number', '%');
+							await this.writeStateObject(
+								`${basePath}.status.stateOfCharge`,
+								'State of Charge',
+								parseFloat(device.status.stateOfCharge.value),
+								'value.battery',
+								'number',
+								'%',
+							);
 						}
 						if (device.status.activePower && device.status.activePower.value) {
-							await this.writeStateObject(`${basePath}.status.activePower`, 'Active Power', parseFloat(device.status.activePower.value), 'value.power', 'number', 'kW');
+							await this.writeStateObject(
+								`${basePath}.status.activePower`,
+								'Active Power',
+								parseFloat(device.status.activePower.value),
+								'value.power',
+								'number',
+								'kW',
+							);
 						}
 
 						const isSuspended = !!device.status.isSuspended;
-						await this.writeStateObject(`${basePath}.status.isSuspended`, 'Is Suspended', isSuspended, 'indicator', 'boolean');
-						
+						await this.writeStateObject(
+							`${basePath}.status.isSuspended`,
+							'Is Suspended',
+							isSuspended,
+							'indicator',
+							'boolean',
+						);
+
 						const smartChargeActive = !isSuspended;
 						await this.setObjectNotExistsAsync(`${basePath}.smartChargeActive`, {
 							type: 'state',
-							common: { name: 'Smart Charging Active', type: 'boolean', role: 'switch', read: true, write: true },
+							common: {
+								name: 'Smart Charging Active',
+								type: 'boolean',
+								role: 'switch',
+								read: true,
+								write: true,
+							},
 							native: {},
 						});
-						await this.setStateAsync(`${basePath}.smartChargeActive`, { val: smartChargeActive, ack: true });
+						await this.setStateAsync(`${basePath}.smartChargeActive`, {
+							val: smartChargeActive,
+							ack: true,
+						});
 					}
 				}
 				this.log.info(`Fetched and updated ${devices.length} Octopus devices.`);
@@ -698,9 +835,11 @@ class EnergyCompare extends utils.Adapter {
 
 	async setSmartChargeStatus(deviceId, action) {
 		try {
-			if (!this.octopusAuthToken) return;
+			if (!this.octopusAuthToken) {
+				return;
+			}
 			const apiDomain = 'https://api.oeg-kraken.energy/v1/graphql/';
-			
+
 			const payload = {
 				query: `mutation MyMutation($deviceID: ID!) {
 					updateDeviceSmartControl(input: {deviceId: $deviceID, action: ${action}}) {
@@ -716,14 +855,18 @@ class EnergyCompare extends utils.Adapter {
 			});
 
 			if (res.status === 200 && res.data?.data?.updateDeviceSmartControl) {
-				this.log.info(`Smart Charging mutation ${action} sent for device ${deviceId}. Refreshing status in 5s...`);
-				
+				this.log.info(
+					`Smart Charging mutation ${action} sent for device ${deviceId}. Refreshing status in 5s...`,
+				);
+
 				// Wait 5 seconds for the backend to propagate the change, then refresh
 				this.setTimeout(async () => {
 					await this.fetchOctopusDevices();
 				}, 5000);
 			} else {
-				this.log.error(`Failed to set smart charge status. Response: ${JSON.stringify(res.data || res.statusText)}`);
+				this.log.error(
+					`Failed to set smart charge status. Response: ${JSON.stringify(res.data || res.statusText)}`,
+				);
 			}
 		} catch (error) {
 			this.log.error(`Error setting smart charge status: ${error.message}`);
@@ -737,7 +880,7 @@ class EnergyCompare extends utils.Adapter {
 				const parts = id.split('.');
 				const deviceId = parts[parts.length - 2];
 				const action = state.val ? 'UNSUSPEND' : 'SUSPEND';
-				
+
 				this.log.info(`User requested smart charge action ${action} for device ${deviceId}`);
 				await this.setSmartChargeStatus(deviceId, action);
 			}
