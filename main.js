@@ -45,7 +45,7 @@ class EnergyCompare extends utils.Adapter {
 		this.subscribeStates('octopus.devices.*.smartChargeActive');
 		this.subscribeStates('octopus.devices.*.refresh');
 
-		this.setTimeout(() => this.syncData(), 5000);
+		this.syncTimeout = this.setTimeout(() => this.syncData(), 5000);
 	}
 
 	async cleanupLegacyHistory() {
@@ -873,7 +873,7 @@ class EnergyCompare extends utils.Adapter {
 				);
 
 				// Wait 5 seconds for the backend to propagate the change, then refresh
-				this.setTimeout(async () => {
+				this.smartChargeTimeout = this.setTimeout(async () => {
 					await this.fetchOctopusDevices();
 				}, 5000);
 			} else {
@@ -1272,6 +1272,12 @@ class EnergyCompare extends utils.Adapter {
 		try {
 			if (this.syncInterval) {
 				this.clearInterval(this.syncInterval);
+			}
+			if (this.syncTimeout) {
+				this.clearTimeout(this.syncTimeout);
+			}
+			if (this.smartChargeTimeout) {
+				this.clearTimeout(this.smartChargeTimeout);
 			}
 			callback();
 		} catch {
