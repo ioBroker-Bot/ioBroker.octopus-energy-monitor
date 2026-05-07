@@ -98,23 +98,32 @@
 					"type": "number",
 					"label": "Discrepancy Threshold (kWh) to flag mismatches",
 					"newLine": true,
+					"xs": 12,
 					"sm": 12,
-					"md": 6
+					"md": 6,
+					"lg": 4,
+					"xl": 4
 				},
 				"updateInterval": {
 					"type": "number",
 					"label": "Update Interval (minutes)",
 					"min": 1,
 					"newLine": false,
+					"xs": 12,
 					"sm": 12,
-					"md": 6
+					"md": 6,
+					"lg": 4,
+					"xl": 4
 				},
 				"splitGoTariff": {
 					"type": "checkbox",
 					"label": "Split into 'Go' (0-5h) and Standard Tariff windows",
 					"newLine": true,
+					"xs": 12,
 					"sm": 12,
-					"md": 6
+					"md": 6,
+					"lg": 4,
+					"xl": 4
 				},
 				"syncDays": {
 					"type": "number",
@@ -122,8 +131,11 @@
 					"min": 1,
 					"max": 365,
 					"newLine": false,
+					"xs": 12,
 					"sm": 12,
-					"md": 6
+					"md": 6,
+					"lg": 4,
+					"xl": 4
 				},
 				"retentionDays": {
 					"type": "number",
@@ -131,8 +143,11 @@
 					"min": 0,
 					"max": 3650,
 					"newLine": true,
+					"xs": 12,
 					"sm": 12,
-					"md": 6
+					"md": 6,
+					"lg": 4,
+					"xl": 4
 				}
 			}
 		}
