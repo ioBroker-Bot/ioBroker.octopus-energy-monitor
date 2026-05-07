@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "news": {
+      "0.5.2": {
+        "en": "Add manual refresh button for Octopus devices to trigger on-demand status updates.",
+        "de": "Fügen Sie die manuelle Erfrischungstaste für Octopus-Geräte hinzu, um auf Anfrage Status-Updates auszulösen.",
+        "ru": "Добавьте ручную кнопку обновления для устройств Octopus, чтобы запустить обновления статуса по требованию.",
+        "pt": "Adicione o botão de atualização manual para dispositivos Octopus para ativar atualizações de status sob demanda.",
+        "nl": "Voeg handmatige verversingsknop toe voor Octopus-apparaten om statusupdates op verzoek te activeren.",
+        "fr": "Ajoutez le bouton manuel de mise à jour des appareils Octopus pour déclencher des mises à jour sur demande.",
+        "it": "Aggiungi il pulsante di aggiornamento manuale per i dispositivi Octopus per attivare gli aggiornamenti di stato on-demand.",
+        "es": "Añadir botón de actualización manual para los dispositivos Octopus para activar actualizaciones de estado a pedido.",
+        "pl": "Dodaj przycisk ręcznego odświeżania urządzeń ośmiornicy, aby uruchomić aktualizacje stanu na żądanie.",
+        "uk": "Додати ручну кнопку оновлення для пристроїв Octopus, щоб запустити оновлення стану.",
+        "zh-cn": "为 Octopus 设备添加手动刷新按钮以触发点播状态更新 ."
+      },
       "0.5.1": {
         "en": "Fix all issues reported by ioBroker repository checker (Issue #1).",
         "de": "Beheben Sie alle Probleme, die von ioBroker Repository Checker gemeldet wurden (Issue #1).",
