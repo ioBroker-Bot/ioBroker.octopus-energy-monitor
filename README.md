@@ -62,6 +62,7 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 ## Changelog
 ### **WORK IN PROGRESS**
 * (tipp88) Fix missing responsive size attributes in `jsonConfig.json` (Issue #1 follow-up).
+* (tipp88) Resize SVG logo and its `viewBox` to exactly 512x512 pixels.
 
 ### 0.5.2 (2026-05-07)
 * (tipp88) Add manual refresh button for Octopus devices to trigger on-demand status updates.
