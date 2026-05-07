@@ -7,6 +7,7 @@ class EnergyCompare extends utils.Adapter {
 		super({ ...options, name: 'octopus-energy-monitor' });
 		this.on('ready', this.onReady.bind(this));
 		this.on('unload', this.onUnload.bind(this));
+		this.on('stateChange', this.onStateChange.bind(this));
 		this.syncInterval = null;
 		this.masterData = null;
 		this.octopusAuthToken = null;
@@ -37,6 +38,8 @@ class EnergyCompare extends utils.Adapter {
 		this.syncInterval = this.setInterval(() => {
 			this.syncData();
 		}, intervalMinutes * 60 * 1000);
+
+		this.subscribeStates('octopus.devices.*.smartChargeActive');
 
 		setTimeout(() => this.syncData(), 5000);
 	}
@@ -625,6 +628,128 @@ class EnergyCompare extends utils.Adapter {
 		}
 	}
 
+	async fetchOctopusDevices() {
+		try {
+			if (!this.octopusAuthToken || !this.config.octopusAccount) return;
+
+			const apiDomain = 'https://api.oeg-kraken.energy/v1/graphql/';
+			const payload = {
+				query: `query Devices($account: String!) {
+					devices(accountNumber: $account) {
+						id name integrationDeviceId propertyId provider deviceType
+						status {
+							current currentState isSuspended
+							... on SmartFlexDeviceStatus { current isSuspended currentState }
+							... on SmartFlexVehicleStatus { current isSuspended currentState stateOfCharge { value } activePower { value } }
+						}
+					}
+				}`,
+				variables: { account: this.config.octopusAccount },
+			};
+
+			const res = await axios.post(apiDomain, payload, {
+				headers: { 'Content-Type': 'application/json', Authorization: this.octopusAuthToken },
+				validateStatus: () => true,
+			});
+
+			if (res.status === 200 && res.data?.data?.devices) {
+				const devices = res.data.data.devices;
+				for (const device of devices) {
+					if (!device.id) continue;
+					const basePath = `octopus.devices.${device.id}`;
+					
+					await this.setObjectNotExistsAsync(`octopus.devices`, { type: 'channel', common: { name: 'Octopus Devices' }, native: {} });
+					await this.setObjectNotExistsAsync(basePath, { type: 'channel', common: { name: device.name || 'Device' }, native: {} });
+
+					await this.writeStateObject(`${basePath}.name`, 'Device Name', device.name || '', 'text', 'string');
+					await this.writeStateObject(`${basePath}.provider`, 'Provider', device.provider || '', 'text', 'string');
+					await this.writeStateObject(`${basePath}.deviceType`, 'Device Type', device.deviceType || '', 'text', 'string');
+					await this.writeStateObject(`${basePath}.integrationDeviceId`, 'Integration Device ID', device.integrationDeviceId || '', 'text', 'string');
+
+					if (device.status) {
+						await this.writeStateObject(`${basePath}.status.current`, 'Current Status', device.status.current || '', 'text', 'string');
+						await this.writeStateObject(`${basePath}.status.currentState`, 'Current State', device.status.currentState || '', 'text', 'string');
+						
+						if (device.status.stateOfCharge && device.status.stateOfCharge.value) {
+							await this.writeStateObject(`${basePath}.status.stateOfCharge`, 'State of Charge', parseFloat(device.status.stateOfCharge.value), 'value.battery', 'number', '%');
+						}
+						if (device.status.activePower && device.status.activePower.value) {
+							await this.writeStateObject(`${basePath}.status.activePower`, 'Active Power', parseFloat(device.status.activePower.value), 'value.power', 'number', 'kW');
+						}
+
+						const isSuspended = !!device.status.isSuspended;
+						await this.writeStateObject(`${basePath}.status.isSuspended`, 'Is Suspended', isSuspended, 'indicator', 'boolean');
+						
+						const smartChargeActive = !isSuspended;
+						await this.setObjectNotExistsAsync(`${basePath}.smartChargeActive`, {
+							type: 'state',
+							common: { name: 'Smart Charging Active', type: 'boolean', role: 'switch', read: true, write: true },
+							native: {},
+						});
+						await this.setStateAsync(`${basePath}.smartChargeActive`, { val: smartChargeActive, ack: true });
+					}
+				}
+				this.log.info(`Fetched and updated ${devices.length} Octopus devices.`);
+			}
+		} catch (error) {
+			this.log.error(`Failed to fetch Octopus devices: ${error.message}`);
+		}
+	}
+
+	async setSmartChargeStatus(deviceId, action) {
+		try {
+			if (!this.octopusAuthToken) return;
+			const apiDomain = 'https://api.oeg-kraken.energy/v1/graphql/';
+			
+			const payload = {
+				query: `mutation MyMutation($deviceID: ID!) {
+					updateDeviceSmartControl(input: {deviceId: $deviceID, action: ${action}}) {
+						id name status { isSuspended currentState current ... on SmartFlexVehicleStatus { current isSuspended currentState } }
+					}
+				}`,
+				variables: { deviceID: deviceId },
+			};
+
+			const res = await axios.post(apiDomain, payload, {
+				headers: { 'Content-Type': 'application/json', Authorization: this.octopusAuthToken },
+				validateStatus: () => true,
+			});
+
+			if (res.status === 200 && res.data?.data?.updateDeviceSmartControl) {
+				const updatedDevice = res.data.data.updateDeviceSmartControl;
+				const isSuspended = !!updatedDevice.status?.isSuspended;
+				const smartChargeActive = !isSuspended;
+				
+				this.log.info(`Smart Charging for device ${deviceId} is now ${smartChargeActive ? 'ACTIVE' : 'SUSPENDED'}`);
+				
+				const basePath = `octopus.devices.${deviceId}`;
+				await this.setStateAsync(`${basePath}.smartChargeActive`, { val: smartChargeActive, ack: true });
+				await this.setStateAsync(`${basePath}.status.isSuspended`, { val: isSuspended, ack: true });
+				if (updatedDevice.status?.currentState) {
+					await this.setStateAsync(`${basePath}.status.currentState`, { val: updatedDevice.status.currentState, ack: true });
+				}
+			} else {
+				this.log.error(`Failed to set smart charge status. Response: ${JSON.stringify(res.data || res.statusText)}`);
+			}
+		} catch (error) {
+			this.log.error(`Error setting smart charge status: ${error.message}`);
+		}
+	}
+
+	async onStateChange(id, state) {
+		if (state && !state.ack) {
+			const prefix = `${this.namespace}.octopus.devices.`;
+			if (id.startsWith(prefix) && id.endsWith('.smartChargeActive')) {
+				const parts = id.split('.');
+				const deviceId = parts[parts.length - 2];
+				const action = state.val ? 'UNSUSPEND' : 'SUSPEND';
+				
+				this.log.info(`User requested smart charge action ${action} for device ${deviceId}`);
+				await this.setSmartChargeStatus(deviceId, action);
+			}
+		}
+	}
+
 	async syncData() {
 		await this.cleanupLegacyHistory();
 		const syncDays = Number(this.config.syncDays) || 30;
@@ -635,6 +760,8 @@ class EnergyCompare extends utils.Adapter {
 			this.log.warn('Aborting sync because master data could not be fetched.');
 			return;
 		}
+
+		await this.fetchOctopusDevices();
 
 		if (this.hasInexogy) {
 			await this.fetchInexogyMasterData();
