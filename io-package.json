@@ -171,7 +171,7 @@
     "inexogyEmail": "",
     "inexogyPassword": "",
     "discrepancyThreshold": 0.1,
-    "cronSchedule": "0 2 * * *",
+    "updateInterval": 60,
     "splitGoTariff": false,
     "syncDays": 30,
     "retentionDays": 0

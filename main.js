@@ -1,14 +1,13 @@
 'use strict';
 const utils = require('@iobroker/adapter-core');
 const axios = require('axios');
-const cron = require('node-cron');
 
 class EnergyCompare extends utils.Adapter {
 	constructor(options) {
 		super({ ...options, name: 'octopus-energy-monitor' });
 		this.on('ready', this.onReady.bind(this));
 		this.on('unload', this.onUnload.bind(this));
-		this.cronJob = null;
+		this.syncInterval = null;
 		this.masterData = null;
 		this.octopusAuthToken = null;
 		this.inexogyMeterId = null;
@@ -32,12 +31,12 @@ class EnergyCompare extends utils.Adapter {
 		await this.cleanupLegacyHistory();
 		await this.setupObjects();
 
-		const schedule = this.config.cronSchedule || '0 2 * * *';
-		this.log.info(`Scheduling daily sync with CRON: ${schedule}`);
+		const intervalMinutes = this.config.updateInterval || 60;
+		this.log.info(`Scheduling data sync every ${intervalMinutes} minutes.`);
 
-		this.cronJob = cron.schedule(schedule, () => {
+		this.syncInterval = this.setInterval(() => {
 			this.syncData();
-		});
+		}, intervalMinutes * 60 * 1000);
 
 		setTimeout(() => this.syncData(), 5000);
 	}
@@ -158,7 +157,7 @@ class EnergyCompare extends utils.Adapter {
 		}
 	}
 
-	async fetchOctopusMasterData() {
+	async fetchOctopusMasterData(retry = true) {
 		try {
 			const apiDomain = 'https://api.oeg-kraken.energy/v1/graphql/';
 
@@ -219,7 +218,12 @@ class EnergyCompare extends utils.Adapter {
 			});
 
 			if (dataRes.status !== 200 || !dataRes.data?.data?.account) {
-				throw new Error('Master data fetch failed');
+				if (retry) {
+					this.log.debug('Token might be expired, retrying login...');
+					this.octopusAuthToken = null;
+					return await this.fetchOctopusMasterData(false);
+				}
+				throw new Error('Master data fetch failed: ' + (dataRes.data?.errors ? JSON.stringify(dataRes.data.errors) : dataRes.statusText));
 			}
 
 			const account = dataRes.data.data.account;
@@ -923,8 +927,8 @@ class EnergyCompare extends utils.Adapter {
 
 	onUnload(callback) {
 		try {
-			if (this.cronJob) {
-				this.cronJob.stop();
+			if (this.syncInterval) {
+				this.clearInterval(this.syncInterval);
 			}
 			callback();
 		} catch {
