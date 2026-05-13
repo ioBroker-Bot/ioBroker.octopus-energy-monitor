@@ -303,7 +303,7 @@ class EnergyCompare extends utils.Adapter {
 
 			this.masterData = masterData;
 			await this.writeMasterDataStates(masterData);
-			this.log.info('Octopus master data fetched and updated.');
+			this.log.debug('Octopus master data fetched and updated.');
 			return masterData;
 		} catch (error) {
 			this.log.error(`Failed to fetch master data: ${error.message}`);
@@ -698,7 +698,7 @@ class EnergyCompare extends utils.Adapter {
 				}
 			}
 
-			this.log.info('Inexogy master data and last reading fetched and updated.');
+			this.log.debug('Inexogy master data and last reading fetched and updated.');
 		} catch (error) {
 			this.log.error(`Failed to fetch Inexogy master data: ${error.message}`);
 		}
@@ -848,7 +848,7 @@ class EnergyCompare extends utils.Adapter {
 						});
 					}
 				}
-				this.log.info(`Fetched and updated ${devices.length} Octopus devices.`);
+				this.log.debug(`Fetched and updated ${devices.length} Octopus devices.`);
 			}
 		} catch (error) {
 			this.log.error(`Failed to fetch Octopus devices: ${error.message}`);
@@ -916,7 +916,7 @@ class EnergyCompare extends utils.Adapter {
 	async syncData() {
 		await this.cleanupLegacyHistory();
 		const syncDays = Number(this.config.syncDays) || 30;
-		this.log.info(`Starting ${syncDays}-day retroactive data sync...`);
+		this.log.debug(`Starting ${syncDays}-day retroactive data sync...`);
 
 		const masterData = await this.fetchOctopusMasterData();
 		if (!masterData) {
@@ -1106,7 +1106,7 @@ class EnergyCompare extends utils.Adapter {
 					'Current Calculated Meter Reading',
 					parseFloat(calculatedReading.toFixed(3)),
 				);
-				this.log.info(`Updated calculated meter reading: ${calculatedReading.toFixed(3)} kWh`);
+				this.log.debug(`Updated calculated meter reading: ${calculatedReading.toFixed(3)} kWh`);
 			}
 		} catch (error) {
 			this.log.error(`Error during syncData: ${error.message}`);
@@ -1208,7 +1208,7 @@ class EnergyCompare extends utils.Adapter {
 	}
 
 	async updateHistoryJson() {
-		this.log.info('Updating history JSON arrays...');
+		this.log.debug('Updating history JSON arrays...');
 		const objects = await this.getAdapterObjectsAsync();
 		const historyPrefix = `${this.namespace}.history.`;
 
