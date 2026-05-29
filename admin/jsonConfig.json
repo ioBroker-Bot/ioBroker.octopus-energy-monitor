@@ -242,7 +242,7 @@
 				"enwgTimeWindows": {
 					"type": "table",
 					"label": "Configured Time Windows",
-					"help": "Define the time windows for NT, ST, HT. Windows must not overlap within the same month.",
+					"help": "Define the time windows for NT and HT. All other times automatically default to ST (Standard Tariff). Windows must not overlap within the same month.",
 					"newLine": true,
 					"xs": 12,
 					"sm": 12,
