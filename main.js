@@ -119,16 +119,33 @@ class EnergyCompare extends utils.Adapter {
 			common: { name: 'Current Month Aggregation' },
 			native: {},
 		});
-		await this.setObjectNotExistsAsync('octopus.currentPeriod', {
+		await this.setObjectNotExistsAsync('octopus.periods', {
 			type: 'channel',
-			common: { name: 'Current Billing Period Aggregation' },
+			common: { name: 'Billing Periods' },
 			native: {},
 		});
-		await this.setObjectNotExistsAsync('octopus.lastPeriod', {
+		await this.setObjectNotExistsAsync('octopus.periods.current', {
 			type: 'channel',
-			common: { name: 'Last Billing Period Aggregation' },
+			common: { name: 'Current Billing Period' },
 			native: {},
 		});
+
+		// Clean up legacy currentPeriod/lastPeriod objects
+		const legacyPeriodStates = [
+			'octopus.currentPeriod.startDate',
+			'octopus.currentPeriod.endDate',
+			'octopus.currentPeriod.totalConsumption',
+			'octopus.currentPeriod.totalCost',
+			'octopus.currentPeriod',
+			'octopus.lastPeriod.startDate',
+			'octopus.lastPeriod.endDate',
+			'octopus.lastPeriod.totalConsumption',
+			'octopus.lastPeriod.totalCost',
+			'octopus.lastPeriod',
+		];
+		for (const stateId of legacyPeriodStates) {
+			await this.delObjectAsync(stateId);
+		}
 
 		await this.setObjectNotExistsAsync('octopus.historyJson', {
 			type: 'state',
@@ -864,6 +881,9 @@ class EnergyCompare extends utils.Adapter {
 						result.enwgSlots[tariffEnwg].consumption += nodeVal;
 						result.enwgSlots[tariffEnwg].costGross += nodeVal * pFinalGross;
 						result.enwgSlots[tariffEnwg].costNet += nodeVal * pFinalNet;
+
+						// ALSO add to standard slots
+						result.slots[matchedRate.name].cost += nodeVal * pFinalGross;
 					}
 				} else {
 					result.slots[this.masterData.rates[0].name].consumption += nodeVal;
@@ -883,24 +903,21 @@ class EnergyCompare extends utils.Adapter {
 						result.enwgSlots[tariffEnwg].consumption += nodeVal;
 						result.enwgSlots[tariffEnwg].costGross += nodeVal * pFinalGross;
 						result.enwgSlots[tariffEnwg].costNet += nodeVal * pFinalNet;
+
+						// ALSO add to standard slots
+						result.slots[this.masterData.rates[0].name].cost += nodeVal * pFinalGross;
 					}
 				}
 			}
 
 			let totalCost = 0;
 			for (const key of Object.keys(result.slots)) {
-				result.slots[key].cost = result.slots[key].consumption * result.slots[key].rateEuros;
+				if (!enwgActive) {
+					result.slots[key].cost = result.slots[key].consumption * result.slots[key].rateEuros;
+				}
 				totalCost += result.slots[key].cost;
 			}
 			result.totalCost = totalCost;
-
-			if (enwgActive) {
-				let totalEnwgCost = 0;
-				for (const key of Object.keys(result.enwgSlots)) {
-					totalEnwgCost += result.enwgSlots[key].costGross;
-				}
-				result.totalCost = totalEnwgCost;
-			}
 
 			return result;
 		} catch (error) {
@@ -1719,12 +1736,13 @@ class EnergyCompare extends utils.Adapter {
 
 		const billingPeriodStartDay = Number(this.config.billingPeriodStartDay) || 1;
 		const today = new Date();
-		const currentPeriod = this.getPeriodDates(today, billingPeriodStartDay);
-		const lastPeriodDate = new Date(currentPeriod.start.getTime() - 24 * 60 * 60 * 1000);
-		const lastPeriod = this.getPeriodDates(lastPeriodDate, billingPeriodStartDay);
 
-		let currentPeriodTotals = { consumption: 0, cost: 0 };
-		let lastPeriodTotals = { consumption: 0, cost: 0 };
+		// Store dynamic periods map: periodStartDate (format: YYYY-MM-DD) -> periodData
+		const periodMap = {};
+
+		const formatDateStr = d => {
+			return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+		};
 
 		for (const id of Object.keys(objects)) {
 			if (id.startsWith(historyPrefix)) {
@@ -1734,6 +1752,7 @@ class EnergyCompare extends utils.Adapter {
 				if (parts.length === 5 && parts[3] === 'octopus' && parts[4] === 'dailyConsumption') {
 					const year = parts[0];
 					const month = parts[1];
+					const day = parts[2];
 
 					if (!yearMap[year]) {
 						yearMap[year] = { consumption: 0, cost: 0, months: {} };
@@ -1744,7 +1763,7 @@ class EnergyCompare extends utils.Adapter {
 
 					const consState = await this.getStateAsync(id);
 					const costState = await this.getStateAsync(
-						`${historyPrefix}${year}.${month}.${parts[2]}.octopus.totalCost`,
+						`${historyPrefix}${year}.${month}.${day}.octopus.totalCost`,
 					);
 
 					const cons = consState && consState.val ? Number(consState.val) : 0;
@@ -1762,16 +1781,45 @@ class EnergyCompare extends utils.Adapter {
 
 					const yearNum = parseInt(year, 10);
 					const monthNum = parseInt(month, 10);
-					const dayNum = parseInt(parts[2], 10);
+					const dayNum = parseInt(day, 10);
 					const stateDate = new Date(yearNum, monthNum - 1, dayNum);
 
-					if (stateDate >= currentPeriod.start && stateDate <= currentPeriod.end) {
-						currentPeriodTotals.consumption += cons;
-						currentPeriodTotals.cost += cost;
+					// Determine period for this day
+					const period = this.getPeriodDates(stateDate, billingPeriodStartDay);
+					const periodKey = formatDateStr(period.start);
+
+					if (!periodMap[periodKey]) {
+						periodMap[periodKey] = {
+							start: period.start,
+							end: period.end,
+							consumption: 0,
+							cost: 0,
+							slots: {},
+						};
 					}
-					if (stateDate >= lastPeriod.start && stateDate <= lastPeriod.end) {
-						lastPeriodTotals.consumption += cons;
-						lastPeriodTotals.cost += cost;
+
+					periodMap[periodKey].consumption += cons;
+					periodMap[periodKey].cost += cost;
+
+					// Dynamically query slot states
+					if (this.masterData && this.masterData.rates) {
+						for (const rate of this.masterData.rates) {
+							const slotName = rate.name.toLowerCase();
+							const slotConsId = `${historyPrefix}${year}.${month}.${day}.octopus.${slotName}Consumption`;
+							const slotCostId = `${historyPrefix}${year}.${month}.${day}.octopus.${slotName}Cost`;
+
+							const slotConsState = await this.getStateAsync(slotConsId);
+							const slotCostState = await this.getStateAsync(slotCostId);
+
+							const slotCons = slotConsState && slotConsState.val ? Number(slotConsState.val) : 0;
+							const slotCost = slotCostState && slotCostState.val ? Number(slotCostState.val) : 0;
+
+							if (!periodMap[periodKey].slots[slotName]) {
+								periodMap[periodKey].slots[slotName] = { consumption: 0, cost: 0 };
+							}
+							periodMap[periodKey].slots[slotName].consumption += slotCons;
+							periodMap[periodKey].slots[slotName].cost += slotCost;
+						}
 					}
 				}
 			}
@@ -1823,66 +1871,145 @@ class EnergyCompare extends utils.Adapter {
 			'€',
 		);
 
-		// Write custom billing periods
-		const formatDateStr = d => {
-			return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-		};
+		// Keep track of active object IDs for garbage collection
+		const activePeriodIds = new Set();
+		activePeriodIds.add(`${this.namespace}.octopus.periods`);
+		activePeriodIds.add(`${this.namespace}.octopus.periods.current`);
+		activePeriodIds.add(`${this.namespace}.octopus.periods.current.startDate`);
+		activePeriodIds.add(`${this.namespace}.octopus.periods.current.endDate`);
+		activePeriodIds.add(`${this.namespace}.octopus.periods.current.totalConsumption`);
+		activePeriodIds.add(`${this.namespace}.octopus.periods.current.totalCost`);
 
-		await this.writeStateObject(
-			'octopus.currentPeriod.startDate',
-			'Current Period Start Date',
-			formatDateStr(currentPeriod.start),
-			'text',
-			'string',
-		);
-		await this.writeStateObject(
-			'octopus.currentPeriod.endDate',
-			'Current Period End Date',
-			formatDateStr(currentPeriod.end),
-			'text',
-			'string',
-		);
-		await this.writeStateObject(
-			'octopus.currentPeriod.totalConsumption',
-			'Current Period Consumption',
-			parseFloat(currentPeriodTotals.consumption.toFixed(3)),
-		);
-		await this.writeStateObject(
-			'octopus.currentPeriod.totalCost',
-			'Current Period Cost',
-			parseFloat(currentPeriodTotals.cost.toFixed(2)),
-			'value',
-			'number',
-			'€',
-		);
+		// Write all dynamic period states
+		for (const [key, pData] of Object.entries(periodMap)) {
+			const basePath = `octopus.periods.${key}`;
+			activePeriodIds.add(`${this.namespace}.${basePath}`);
+			activePeriodIds.add(`${this.namespace}.${basePath}.startDate`);
+			activePeriodIds.add(`${this.namespace}.${basePath}.endDate`);
+			activePeriodIds.add(`${this.namespace}.${basePath}.totalConsumption`);
+			activePeriodIds.add(`${this.namespace}.${basePath}.totalCost`);
 
-		await this.writeStateObject(
-			'octopus.lastPeriod.startDate',
-			'Last Period Start Date',
-			formatDateStr(lastPeriod.start),
-			'text',
-			'string',
-		);
-		await this.writeStateObject(
-			'octopus.lastPeriod.endDate',
-			'Last Period End Date',
-			formatDateStr(lastPeriod.end),
-			'text',
-			'string',
-		);
-		await this.writeStateObject(
-			'octopus.lastPeriod.totalConsumption',
-			'Last Period Consumption',
-			parseFloat(lastPeriodTotals.consumption.toFixed(3)),
-		);
-		await this.writeStateObject(
-			'octopus.lastPeriod.totalCost',
-			'Last Period Cost',
-			parseFloat(lastPeriodTotals.cost.toFixed(2)),
-			'value',
-			'number',
-			'€',
-		);
+			await this.setObjectNotExistsAsync(basePath, {
+				type: 'channel',
+				common: { name: `Period ${formatDateStr(pData.start)} to ${formatDateStr(pData.end)}` },
+				native: {},
+			});
+
+			await this.writeStateObject(
+				`${basePath}.startDate`,
+				'Period Start Date',
+				formatDateStr(pData.start),
+				'text',
+				'string',
+			);
+			await this.writeStateObject(
+				`${basePath}.endDate`,
+				'Period End Date',
+				formatDateStr(pData.end),
+				'text',
+				'string',
+			);
+			await this.writeStateObject(
+				`${basePath}.totalConsumption`,
+				'Period Total Consumption',
+				parseFloat(pData.consumption.toFixed(3)),
+			);
+			await this.writeStateObject(
+				`${basePath}.totalCost`,
+				'Period Total Cost',
+				parseFloat(pData.cost.toFixed(2)),
+				'value',
+				'number',
+				'€',
+			);
+
+			// Write slot states for this period
+			for (const [slotName, slotData] of Object.entries(pData.slots)) {
+				const capSlot = slotName.toUpperCase();
+				const consPath = `${basePath}.${slotName}Consumption`;
+				const costPath = `${basePath}.${slotName}Cost`;
+
+				activePeriodIds.add(`${this.namespace}.${consPath}`);
+				activePeriodIds.add(`${this.namespace}.${costPath}`);
+
+				await this.writeStateObject(
+					consPath,
+					`${capSlot} Consumption`,
+					parseFloat(slotData.consumption.toFixed(3)),
+				);
+				await this.writeStateObject(
+					costPath,
+					`${capSlot} Cost`,
+					parseFloat(slotData.cost.toFixed(2)),
+					'value',
+					'number',
+					'€',
+				);
+			}
+
+			// If this is the current active period containing today's date
+			if (today >= pData.start && today <= pData.end) {
+				await this.writeStateObject(
+					'octopus.periods.current.startDate',
+					'Current Period Start Date',
+					formatDateStr(pData.start),
+					'text',
+					'string',
+				);
+				await this.writeStateObject(
+					'octopus.periods.current.endDate',
+					'Current Period End Date',
+					formatDateStr(pData.end),
+					'text',
+					'string',
+				);
+				await this.writeStateObject(
+					'octopus.periods.current.totalConsumption',
+					'Current Period Consumption',
+					parseFloat(pData.consumption.toFixed(3)),
+				);
+				await this.writeStateObject(
+					'octopus.periods.current.totalCost',
+					'Current Period Cost',
+					parseFloat(pData.cost.toFixed(2)),
+					'value',
+					'number',
+					'€',
+				);
+
+				for (const [slotName, slotData] of Object.entries(pData.slots)) {
+					const capSlot = slotName.toUpperCase();
+					const curConsPath = `octopus.periods.current.${slotName}Consumption`;
+					const curCostPath = `octopus.periods.current.${slotName}Cost`;
+
+					activePeriodIds.add(`${this.namespace}.${curConsPath}`);
+					activePeriodIds.add(`${this.namespace}.${curCostPath}`);
+
+					await this.writeStateObject(
+						curConsPath,
+						`Current Period ${capSlot} Consumption`,
+						parseFloat(slotData.consumption.toFixed(3)),
+					);
+					await this.writeStateObject(
+						curCostPath,
+						`Current Period ${capSlot} Cost`,
+						parseFloat(slotData.cost.toFixed(2)),
+						'value',
+						'number',
+						'€',
+					);
+				}
+			}
+		}
+
+		// Cleanup old/legacy objects under octopus.periods.*
+		const prefix = `${this.namespace}.octopus.periods.`;
+		for (const id of Object.keys(objects)) {
+			if (id.startsWith(prefix) && !activePeriodIds.has(id)) {
+				this.log.info(`Deleting legacy period object: ${id}`);
+				await this.delObjectAsync(id.substring(this.namespace.length + 1));
+			}
+		}
 	}
 
 	async updateHistoryJson() {

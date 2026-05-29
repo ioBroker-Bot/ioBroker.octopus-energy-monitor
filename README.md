@@ -28,7 +28,7 @@ Its key purpose is identifying discrepancies in billing/measurement between your
 * **Inexogy Master Data & Live Reading:** Fetch serial numbers, location details, and current meter readings (Bezug/Einspeisung) from Inexogy.
 * **Smart Caching:** Minimizes API load by retroactively syncing only missing data points (30-day default).
 * **§14a EnWG Price Calculation:** Optional tariff calculation for controllable consumption devices (Steuerbare Verbrauchseinrichtung) with custom time windows (NT/HT) and automatic standard tariff (ST) fallback.
-* **Custom Billing Periods:** Aggregates and tracks energy consumption and costs based on your custom billing period start day (e.g., 18th to 17th) under `currentPeriod` and `lastPeriod` channels.
+* **Custom Billing Periods:** Aggregates and tracks energy consumption and costs based on your custom billing period start day (e.g., 18th to 17th) under the `octopus.periods` channel, split by standard rate slots (e.g. Go/Standard) with a static `current` folder for easy visualization.
 
 ---
 
@@ -52,7 +52,7 @@ To install this adapter seamlessly into your ioBroker environment:
    - Enter your standard Octopus login credentials (Email & Password).
    - Input your Account Number (usually starts with `A-`).
    - *(Optional)* Property ID: If Kraken refuses to dynamically match your `propertyId`, you can explicitly set it here to hard-override the Graph query.
-   - **Billing Period Start Day:** Day of the month on which your billing cycle starts (default is `1` for normal calendar month). If your cycle is from the 18th of one month to the 17th of the next, select `18` to generate the custom period channels `currentPeriod` and `lastPeriod`.
+   - **Billing Period Start Day:** Day of the month on which your billing cycle starts (default is `1` for normal calendar month). If your cycle is from the 18th of one month to the 17th of the next, select `18` to generate the billing period folders under `octopus.periods.<startDate>` and a static `octopus.periods.current` alias, including slot-split metrics.
    
 2. **Inexogy:**
    - Enter your Inexogy portal Email & Password. The adapter automatically manages Basic Auth parsing and translates it into Discovergy API queries.
@@ -70,7 +70,7 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 
 ## Changelog
 ### **WORK IN PROGRESS**
-* (tipp88) Added option to set a custom billing period start day, with automatic calculation and aggregation under `currentPeriod` and `lastPeriod` states.
+* (tipp88) Added option to set a custom billing period start day, with automatic calculation, standard slot-split metrics, and aggregation under the dynamic `octopus.periods` tree.
 * (tipp88) Added optional §14a EnWG price calculation support with NT/ST/HT time windows, custom grid fees, and automatic retroactive recalculation.
 * (tipp88) Refactored §14a EnWG support: EnWG states are only created when setting is enabled, simplified grid fee inputs to gross/net toggle, and fixed time window configuration table columns.
 * (tipp88) Moved periodic adapter run logs from info to debug level.
