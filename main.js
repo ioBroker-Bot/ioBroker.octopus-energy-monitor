@@ -300,6 +300,14 @@ class EnergyCompare extends utils.Adapter {
 			'text',
 			'string',
 		);
+		await this.writeStateObject(
+			'octopus.info.monthlyStandingCharge',
+			'Monthly Standing Charge',
+			data.monthlyStandingCharge || 0,
+			'value',
+			'number',
+			'€',
+		);
 
 		for (const rate of data.rates) {
 			await this.writeStateObject(
@@ -341,6 +349,7 @@ class EnergyCompare extends utils.Adapter {
 							id
 							electricityMalos {
 								agreements {
+									id
 									isActive
 									product { displayName isTimeOfUse fullName }
 									unitRateInformation {
@@ -403,6 +412,7 @@ class EnergyCompare extends utils.Adapter {
 			if (!activeAgreement) {
 				throw new Error('No active agreement found');
 			}
+			this.log.debug(`Active agreement found: ${JSON.stringify(activeAgreement)}`);
 
 			let rates = [];
 			if (activeAgreement.unitRateInformation.__typename === 'TimeOfUseProductUnitRateInformation') {
@@ -423,6 +433,49 @@ class EnergyCompare extends utils.Adapter {
 				];
 			}
 
+			let standingChargeEuros = 0;
+			const agreementId = activeAgreement.id;
+			this.log.debug(`Active agreement ID: ${agreementId}`);
+			if (agreementId) {
+				const standingChargePayload = {
+					query: `query AgreementQuery($id: ID!) {
+						agreement(id: $id) {
+							monthlyStandingCharge
+						}
+					}`,
+					variables: { id: agreementId },
+				};
+				this.log.debug(`Fetching standing charge for agreement ID ${agreementId}...`);
+				try {
+					const scRes = await axios.post(apiDomain, standingChargePayload, {
+						headers: { 'Content-Type': 'application/json', Authorization: this.octopusAuthToken },
+						validateStatus: () => true,
+					});
+					this.log.debug(
+						`Standing charge API response status: ${scRes.status}, data: ${JSON.stringify(scRes.data)}`,
+					);
+					if (scRes.status === 200 && scRes.data?.data?.agreement) {
+						const scVal = scRes.data.data.agreement.monthlyStandingCharge;
+						this.log.debug(`Raw monthlyStandingCharge from API: ${scVal}`);
+						if (scVal !== null && scVal !== undefined) {
+							const parsedSc = parseFloat(scVal);
+							if (parsedSc > 100) {
+								standingChargeEuros = parsedSc / 100;
+							} else {
+								standingChargeEuros = parsedSc;
+							}
+						}
+					} else {
+						this.log.warn(
+							`Failed to fetch standing charge: ${scRes.data?.errors ? JSON.stringify(scRes.data.errors) : scRes.statusText}`,
+						);
+					}
+				} catch (err) {
+					this.log.error(`Error querying standing charge: ${err.message}`);
+				}
+			}
+			this.log.debug(`Resolved monthly standing charge in Euros: ${standingChargeEuros}`);
+
 			const masterData = {
 				balance: account.electricityBalance ? parseFloat(account.electricityBalance) / 100 : 0,
 				propertyId: propertyId,
@@ -433,6 +486,7 @@ class EnergyCompare extends utils.Adapter {
 				mopName: malo.mop?.name || 'Unknown',
 				dnoName: malo.dno?.name || 'Unknown',
 				rates: rates,
+				monthlyStandingCharge: standingChargeEuros,
 			};
 
 			if (this.config.splitGoTariff && masterData.rates.length === 1) {
@@ -1832,6 +1886,11 @@ class EnergyCompare extends utils.Adapter {
 		yesterday.setDate(yesterday.getDate() - 1);
 		yesterday.setHours(0, 0, 0, 0);
 
+		// Get monthly standing charge from masterData
+		const standingChargeEuros =
+			this.masterData && this.masterData.monthlyStandingCharge ? this.masterData.monthlyStandingCharge : 0;
+		this.log.debug(`aggregateHistory using standingChargeEuros: ${standingChargeEuros}`);
+
 		for (const [key, pData] of Object.entries(periodMap)) {
 			let isComplete = true;
 			const checkStart = new Date(pData.start);
@@ -1899,6 +1958,20 @@ class EnergyCompare extends utils.Adapter {
 			'€',
 		);
 
+		const daysInCurrentMonth = new Date(yesterday.getFullYear(), yesterday.getMonth() + 1, 0).getDate();
+		const elapsedDaysInMonth = yesterday.getDate();
+		const proportionalMonthCharge = standingChargeEuros * (elapsedDaysInMonth / daysInCurrentMonth);
+		const currentMonthCostWithStandingCharge = currentMonthTotals.cost + proportionalMonthCharge;
+
+		await this.writeStateObject(
+			'octopus.currentMonth.totalCostWithStandingCharge',
+			'Current Month Cost incl. Standing Charge',
+			parseFloat(currentMonthCostWithStandingCharge.toFixed(2)),
+			'value',
+			'number',
+			'€',
+		);
+
 		// Keep track of active object IDs for garbage collection
 		const activePeriodIds = new Set();
 		activePeriodIds.add(`${this.namespace}.octopus.periods`);
@@ -1907,6 +1980,7 @@ class EnergyCompare extends utils.Adapter {
 		activePeriodIds.add(`${this.namespace}.octopus.periods.current.endDate`);
 		activePeriodIds.add(`${this.namespace}.octopus.periods.current.totalConsumption`);
 		activePeriodIds.add(`${this.namespace}.octopus.periods.current.totalCost`);
+		activePeriodIds.add(`${this.namespace}.octopus.periods.current.totalCostWithStandingCharge`);
 
 		// Write all dynamic period states
 		for (const [key, pData] of Object.entries(periodMap)) {
@@ -1916,6 +1990,7 @@ class EnergyCompare extends utils.Adapter {
 			activePeriodIds.add(`${this.namespace}.${basePath}.endDate`);
 			activePeriodIds.add(`${this.namespace}.${basePath}.totalConsumption`);
 			activePeriodIds.add(`${this.namespace}.${basePath}.totalCost`);
+			activePeriodIds.add(`${this.namespace}.${basePath}.totalCostWithStandingCharge`);
 
 			await this.setObjectNotExistsAsync(basePath, {
 				type: 'channel',
@@ -1946,6 +2021,21 @@ class EnergyCompare extends utils.Adapter {
 				`${basePath}.totalCost`,
 				'Period Total Cost',
 				parseFloat(pData.cost.toFixed(2)),
+				'value',
+				'number',
+				'€',
+			);
+
+			const checkEnd = pData.end < yesterday ? new Date(pData.end) : new Date(yesterday);
+			const totalDays = Math.round((pData.end.getTime() - pData.start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+			const elapsedDays = Math.round((checkEnd.getTime() - pData.start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+			const proportionalCharge = standingChargeEuros * (elapsedDays / totalDays);
+			const totalCostWithStandingCharge = pData.cost + proportionalCharge;
+
+			await this.writeStateObject(
+				`${basePath}.totalCostWithStandingCharge`,
+				'Period Total Cost incl. Standing Charge',
+				parseFloat(totalCostWithStandingCharge.toFixed(2)),
 				'value',
 				'number',
 				'€',
@@ -2000,6 +2090,14 @@ class EnergyCompare extends utils.Adapter {
 					'octopus.periods.current.totalCost',
 					'Current Period Cost',
 					parseFloat(pData.cost.toFixed(2)),
+					'value',
+					'number',
+					'€',
+				);
+				await this.writeStateObject(
+					'octopus.periods.current.totalCostWithStandingCharge',
+					'Current Period Cost incl. Standing Charge',
+					parseFloat(totalCostWithStandingCharge.toFixed(2)),
 					'value',
 					'number',
 					'€',

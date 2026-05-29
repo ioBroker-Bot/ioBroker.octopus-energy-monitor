@@ -71,6 +71,8 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 ## Changelog
 ### **WORK IN PROGRESS**
 * (tipp88) Added option to set a custom billing period start day, with automatic calculation, standard slot-split metrics, and aggregation under the dynamic `octopus.periods` tree.
+* (tipp88) Implemented completeness check for billing periods: periods are only written to the object tree if all required daily data points are present in the history database.
+* (tipp88) Integrated monthly standing charge (`monthlyStandingCharge`) from Kraken GraphQL API via the active tariff agreement ID, with proportional cost calculation added to both billing periods and the current calendar month.
 * (tipp88) Added optional §14a EnWG price calculation support with NT/ST/HT time windows, custom grid fees, and automatic retroactive recalculation.
 * (tipp88) Refactored §14a EnWG support: EnWG states are only created when setting is enabled, simplified grid fee inputs to gross/net toggle, and fixed time window configuration table columns.
 * (tipp88) Moved periodic adapter run logs from info to debug level.

@@ -318,7 +318,8 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 				rates: [
 					{ name: 'Go', rateEuros: 0.12 },
 					{ name: 'Standard', rateEuros: 0.24 }
-				]
+				],
+				monthlyStandingCharge: 12.00
 			};
 
 			anyAdapter.getAdapterObjectsAsync = async () => {
@@ -348,10 +349,24 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			expect(writtenStates['octopus.periods.2026-04-18.endDate']).to.equal('2026-05-17');
 			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.totalConsumption'].toFixed(0))).to.equal(10);
 			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.totalCost'].toFixed(0))).to.equal(2);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.totalCostWithStandingCharge'].toFixed(0))).to.equal(14);
 			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.goConsumption'].toFixed(0))).to.equal(4);
 			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.goCost'].toFixed(1))).to.equal(0.5);
 			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.standardConsumption'].toFixed(0))).to.equal(6);
 			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.standardCost'].toFixed(1))).to.equal(1.5);
+
+			// Check current month cost with standing charge dynamically
+			const yesterday = new Date();
+			yesterday.setDate(yesterday.getDate() - 1);
+			yesterday.setHours(0, 0, 0, 0);
+			const daysInCurrentMonth = new Date(yesterday.getFullYear(), yesterday.getMonth() + 1, 0).getDate();
+			const elapsedDaysInMonth = yesterday.getDate();
+			const expectedMonthStandingCharge = 12.00 * (elapsedDaysInMonth / daysInCurrentMonth);
+			const expectedMonthCostWithStandingCharge = 4.13333339 + expectedMonthStandingCharge;
+
+			expect(parseFloat(writtenStates['octopus.currentMonth.totalCostWithStandingCharge'].toFixed(2))).to.equal(
+				parseFloat(expectedMonthCostWithStandingCharge.toFixed(2))
+			);
 
 			// The 2026-05-18 period is incomplete, so it must NOT be written
 			expect(writtenStates['octopus.periods.2026-05-18.startDate']).to.be.undefined;
