@@ -54,12 +54,10 @@ class EnergyCompare extends utils.Adapter {
 			const currentHashObj = {
 				enabled: this.config.enwgEnabled,
 				startDate: this.config.enwgStartDate,
-				gridFeeNtNet: this.config.enwgGridFeeNtNet,
-				gridFeeNtGross: this.config.enwgGridFeeNtGross,
-				gridFeeStNet: this.config.enwgGridFeeStNet,
-				gridFeeStGross: this.config.enwgGridFeeStGross,
-				gridFeeHtNet: this.config.enwgGridFeeHtNet,
-				gridFeeHtGross: this.config.enwgGridFeeHtGross,
+				gridFeeNt: this.config.enwgGridFeeNt,
+				gridFeeSt: this.config.enwgGridFeeSt,
+				gridFeeHt: this.config.enwgGridFeeHt,
+				gridFeesAreGross: this.config.enwgGridFeesAreGross,
 				timeWindows: this.config.enwgTimeWindows,
 			};
 			const currentHash = JSON.stringify(currentHashObj);
@@ -612,12 +610,35 @@ class EnergyCompare extends utils.Adapter {
 		return checkDate >= startDate;
 	}
 
+	getEnwgGridFees(config) {
+		const isGross = !!config.enwgGridFeesAreGross;
+		const feeSt = Number(config.enwgGridFeeSt) || 0;
+		const feeNt = Number(config.enwgGridFeeNt) || 0;
+		const feeHt = Number(config.enwgGridFeeHt) || 0;
+
+		return {
+			ST: {
+				net: isGross ? feeSt / 1.19 : feeSt,
+				gross: isGross ? feeSt : feeSt * 1.19,
+			},
+			NT: {
+				net: isGross ? feeNt / 1.19 : feeNt,
+				gross: isGross ? feeNt : feeNt * 1.19,
+			},
+			HT: {
+				net: isGross ? feeHt / 1.19 : feeHt,
+				gross: isGross ? feeHt : feeHt * 1.19,
+			},
+		};
+	}
+
 	async fetchOctopus(start, _end) {
 		try {
 			if (!this.masterData) {
 				return null;
 			}
 			const enwgActive = this.isEnwgActiveForDate(start, this.config);
+			const fees = enwgActive ? this.getEnwgGridFees(this.config) : null;
 			const isSplit = (this.masterData.isTimeOfUse && this.masterData.rates.length > 1) || enwgActive;
 
 			const apiDomain = 'https://api.oeg-kraken.energy/v1/graphql/';
@@ -715,34 +736,16 @@ class EnergyCompare extends utils.Adapter {
 					}
 
 					// If EnWG is active, calculate EnWG rates for the interval
-					if (enwgActive && matchedRate) {
+					if (enwgActive && matchedRate && fees) {
 						const pApi = matchedRate.rateEuros; // Gross price from Octopus API for this interval
 						const tariffEnwg = this.getEnwgTariffForTime(startDt, this.config);
 
-						// Subtract ST Gross grid fee
-						const gStGross = Number(this.config.enwgGridFeeStGross) || 0;
-						// Add active Gross grid fee
-						let gActiveGross = 0;
-						if (tariffEnwg === 'NT') {
-							gActiveGross = Number(this.config.enwgGridFeeNtGross) || 0;
-						} else if (tariffEnwg === 'ST') {
-							gActiveGross = Number(this.config.enwgGridFeeStGross) || 0;
-						} else if (tariffEnwg === 'HT') {
-							gActiveGross = Number(this.config.enwgGridFeeHtGross) || 0;
-						}
+						const gStGross = fees.ST.gross;
+						const gActiveGross = fees[tariffEnwg].gross;
 						const pFinalGross = pApi - gStGross + gActiveGross;
 
-						// Subtract ST Net grid fee
-						const gStNet = Number(this.config.enwgGridFeeStNet) || 0;
-						// Add active Net grid fee
-						let gActiveNet = 0;
-						if (tariffEnwg === 'NT') {
-							gActiveNet = Number(this.config.enwgGridFeeNtNet) || 0;
-						} else if (tariffEnwg === 'ST') {
-							gActiveNet = Number(this.config.enwgGridFeeStNet) || 0;
-						} else if (tariffEnwg === 'HT') {
-							gActiveNet = Number(this.config.enwgGridFeeHtNet) || 0;
-						}
+						const gStNet = fees.ST.net;
+						const gActiveNet = fees[tariffEnwg].net;
 
 						// Net API price: divide by 1.19
 						const pApiNet = pApi / 1.19;
@@ -754,30 +757,16 @@ class EnergyCompare extends utils.Adapter {
 					}
 				} else {
 					result.slots[this.masterData.rates[0].name].consumption += nodeVal;
-					if (enwgActive) {
+					if (enwgActive && fees) {
 						const pApi = this.masterData.rates[0].rateEuros;
 						const tariffEnwg = this.getEnwgTariffForTime(startDt, this.config);
 
-						const gStGross = Number(this.config.enwgGridFeeStGross) || 0;
-						let gActiveGross = 0;
-						if (tariffEnwg === 'NT') {
-							gActiveGross = Number(this.config.enwgGridFeeNtGross) || 0;
-						} else if (tariffEnwg === 'ST') {
-							gActiveGross = Number(this.config.enwgGridFeeStGross) || 0;
-						} else if (tariffEnwg === 'HT') {
-							gActiveGross = Number(this.config.enwgGridFeeHtGross) || 0;
-						}
+						const gStGross = fees.ST.gross;
+						const gActiveGross = fees[tariffEnwg].gross;
 						const pFinalGross = pApi - gStGross + gActiveGross;
 
-						const gStNet = Number(this.config.enwgGridFeeStNet) || 0;
-						let gActiveNet = 0;
-						if (tariffEnwg === 'NT') {
-							gActiveNet = Number(this.config.enwgGridFeeNtNet) || 0;
-						} else if (tariffEnwg === 'ST') {
-							gActiveNet = Number(this.config.enwgGridFeeStNet) || 0;
-						} else if (tariffEnwg === 'HT') {
-							gActiveNet = Number(this.config.enwgGridFeeHtNet) || 0;
-						}
+						const gStNet = fees.ST.net;
+						const gActiveNet = fees[tariffEnwg].net;
 						const pApiNet = pApi / 1.19;
 						const pFinalNet = pApiNet - gStNet + gActiveNet;
 
@@ -1467,7 +1456,7 @@ class EnergyCompare extends utils.Adapter {
 									'€/kWh',
 								);
 							}
-						} else {
+						} else if (this.enwgEnabled) {
 							for (const slotName of ['NT', 'ST', 'HT']) {
 								const safeName = slotName.toLowerCase();
 								await this.writeStateObject(
@@ -1550,7 +1539,7 @@ class EnergyCompare extends utils.Adapter {
 										parseFloat(diff.toFixed(3)),
 									);
 								}
-							} else {
+							} else if (this.enwgEnabled) {
 								for (const slotName of ['NT', 'ST', 'HT']) {
 									const safeName = slotName.toLowerCase();
 									await this.writeStateObject(

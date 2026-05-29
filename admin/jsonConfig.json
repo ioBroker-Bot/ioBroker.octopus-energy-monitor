@@ -189,71 +189,49 @@
 					"size": 4,
 					"newLine": true
 				},
-				"enwgGridFeeStNet": {
+				"enwgGridFeeSt": {
 					"type": "number",
-					"label": "ST Grid Fee Net (€/kWh)",
-					"help": "Standard tariff net grid fee, e.g. 0.1000",
+					"label": "ST Grid Fee (€/kWh)",
+					"help": "Standard tariff grid fee, e.g. 0.1000",
 					"newLine": true,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 2,
-					"xl": 2
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
-				"enwgGridFeeStGross": {
+				"enwgGridFeeNt": {
 					"type": "number",
-					"label": "ST Grid Fee Gross (€/kWh)",
-					"help": "Standard tariff gross grid fee, e.g. 0.1190",
+					"label": "NT Grid Fee (€/kWh)",
+					"help": "Low tariff grid fee (Nachttarif), e.g. 0.0500",
 					"newLine": false,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 2,
-					"xl": 2
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
-				"enwgGridFeeNtNet": {
+				"enwgGridFeeHt": {
 					"type": "number",
-					"label": "NT Grid Fee Net (€/kWh)",
-					"help": "Low tariff net grid fee, e.g. 0.0500",
+					"label": "HT Grid Fee (€/kWh)",
+					"help": "High tariff grid fee (Hochtarif), e.g. 0.1500",
 					"newLine": false,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 2,
-					"xl": 2
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
-				"enwgGridFeeNtGross": {
-					"type": "number",
-					"label": "NT Grid Fee Gross (€/kWh)",
-					"help": "Low tariff gross grid fee, e.g. 0.0595",
+				"enwgGridFeesAreGross": {
+					"type": "checkbox",
+					"label": "Preise sind brutto (Prices are gross)",
+					"help": "Check if the entered grid fees are gross. Otherwise, they are assumed to be net.",
 					"newLine": false,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 2,
-					"xl": 2
-				},
-				"enwgGridFeeHtNet": {
-					"type": "number",
-					"label": "HT Grid Fee Net (€/kWh)",
-					"help": "High tariff net grid fee, e.g. 0.1500",
-					"newLine": false,
-					"xs": 12,
-					"sm": 6,
-					"md": 4,
-					"lg": 2,
-					"xl": 2
-				},
-				"enwgGridFeeHtGross": {
-					"type": "number",
-					"label": "HT Grid Fee Gross (€/kWh)",
-					"help": "High tariff gross grid fee, e.g. 0.1785",
-					"newLine": false,
-					"xs": 12,
-					"sm": 6,
-					"md": 4,
-					"lg": 2,
-					"xl": 2
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"timeWindowsHeader": {
 					"type": "header",
@@ -274,8 +252,8 @@
 					"items": [
 						{
 							"type": "select",
-							"name": "tariff",
-							"label": "Tariff Type",
+							"attr": "tariff",
+							"title": "Tariff Type",
 							"options": [
 								{
 									"value": "NT",
@@ -294,15 +272,15 @@
 						},
 						{
 							"type": "text",
-							"name": "months",
-							"label": "Active Months",
+							"attr": "months",
+							"title": "Active Months",
 							"help": "Comma-separated list of months (1-12), e.g. 1,2,11,12 or * for all",
 							"xs": 3
 						},
 						{
 							"type": "select",
-							"name": "startTime",
-							"label": "Start Time",
+							"attr": "startTime",
+							"title": "Start Time",
 							"options": [
 								{
 									"value": "00:00",
@@ -693,8 +671,8 @@
 						},
 						{
 							"type": "select",
-							"name": "endTime",
-							"label": "End Time",
+							"attr": "endTime",
+							"title": "End Time",
 							"options": [
 								{
 									"value": "00:15",

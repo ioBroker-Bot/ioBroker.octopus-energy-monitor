@@ -161,4 +161,38 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			expect(adapter.isEnwgActiveForDate(new Date(2026, 4, 11), config)).to.be.true; // May 11
 		});
 	});
+
+	describe('getEnwgGridFees', () => {
+		it('should calculate gross and net prices correctly when inputs are net', () => {
+			const config = {
+				enwgGridFeeSt: 0.10,
+				enwgGridFeeNt: 0.05,
+				enwgGridFeeHt: 0.15,
+				enwgGridFeesAreGross: false,
+			};
+			const result = adapter.getEnwgGridFees(config);
+			expect(result.ST.net).to.equal(0.10);
+			expect(result.ST.gross).to.be.closeTo(0.119, 0.0001);
+			expect(result.NT.net).to.equal(0.05);
+			expect(result.NT.gross).to.be.closeTo(0.0595, 0.0001);
+			expect(result.HT.net).to.equal(0.15);
+			expect(result.HT.gross).to.be.closeTo(0.1785, 0.0001);
+		});
+
+		it('should calculate gross and net prices correctly when inputs are gross', () => {
+			const config = {
+				enwgGridFeeSt: 0.119,
+				enwgGridFeeNt: 0.0595,
+				enwgGridFeeHt: 0.1785,
+				enwgGridFeesAreGross: true,
+			};
+			const result = adapter.getEnwgGridFees(config);
+			expect(result.ST.gross).to.equal(0.119);
+			expect(result.ST.net).to.be.closeTo(0.10, 0.0001);
+			expect(result.NT.gross).to.equal(0.0595);
+			expect(result.NT.net).to.be.closeTo(0.05, 0.0001);
+			expect(result.HT.gross).to.equal(0.1785);
+			expect(result.HT.net).to.be.closeTo(0.15, 0.0001);
+		});
+	});
 });
