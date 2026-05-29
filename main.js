@@ -610,11 +610,23 @@ class EnergyCompare extends utils.Adapter {
 		return checkDate >= startDate;
 	}
 
+	parseConfigNumber(val) {
+		if (typeof val === 'number') {
+			return val;
+		}
+		if (typeof val === 'string') {
+			const cleaned = val.replace(',', '.').trim();
+			const parsed = parseFloat(cleaned);
+			return isNaN(parsed) ? 0 : parsed;
+		}
+		return 0;
+	}
+
 	getEnwgGridFees(config) {
 		const isGross = !!config.enwgGridFeesAreGross;
-		const feeSt = Number(config.enwgGridFeeSt) || 0;
-		const feeNt = Number(config.enwgGridFeeNt) || 0;
-		const feeHt = Number(config.enwgGridFeeHt) || 0;
+		const feeSt = this.parseConfigNumber(config.enwgGridFeeSt);
+		const feeNt = this.parseConfigNumber(config.enwgGridFeeNt);
+		const feeHt = this.parseConfigNumber(config.enwgGridFeeHt);
 
 		return {
 			ST: {

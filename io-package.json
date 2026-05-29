@@ -181,9 +181,9 @@
     "retentionDays": 0,
     "enwgEnabled": false,
     "enwgStartDate": "",
-    "enwgGridFeeSt": 0,
-    "enwgGridFeeNt": 0,
-    "enwgGridFeeHt": 0,
+    "enwgGridFeeSt": "0",
+    "enwgGridFeeNt": "0",
+    "enwgGridFeeHt": "0",
     "enwgGridFeesAreGross": false,
     "enwgTimeWindows": []
   },

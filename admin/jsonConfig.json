@@ -190,7 +190,7 @@
 					"newLine": true
 				},
 				"enwgGridFeeSt": {
-					"type": "number",
+					"type": "text",
 					"label": "ST Grid Fee (€/kWh)",
 					"help": "Standard tariff grid fee, e.g. 0.1000",
 					"newLine": true,
@@ -201,7 +201,7 @@
 					"xl": 3
 				},
 				"enwgGridFeeNt": {
-					"type": "number",
+					"type": "text",
 					"label": "NT Grid Fee (€/kWh)",
 					"help": "Low tariff grid fee (Nachttarif), e.g. 0.0500",
 					"newLine": false,
@@ -212,7 +212,7 @@
 					"xl": 3
 				},
 				"enwgGridFeeHt": {
-					"type": "number",
+					"type": "text",
 					"label": "HT Grid Fee (€/kWh)",
 					"help": "High tariff grid fee (Hochtarif), e.g. 0.1500",
 					"newLine": false,

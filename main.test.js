@@ -194,5 +194,18 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			expect(result.HT.gross).to.equal(0.1785);
 			expect(result.HT.net).to.be.closeTo(0.15, 0.0001);
 		});
+
+		it('should parse strings with dots or commas as decimal separators correctly', () => {
+			const config = {
+				enwgGridFeeSt: "0,10",
+				enwgGridFeeNt: "0.05",
+				enwgGridFeeHt: "  0,15  ",
+				enwgGridFeesAreGross: false,
+			};
+			const result = adapter.getEnwgGridFees(config);
+			expect(result.ST.net).to.equal(0.10);
+			expect(result.NT.net).to.equal(0.05);
+			expect(result.HT.net).to.equal(0.15);
+		});
 	});
 });
