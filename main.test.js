@@ -243,35 +243,51 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 
 	describe('aggregateHistory', () => {
 		it('should group daily consumption into correct period folders and dynamically sum slots', async () => {
-			const mockObjects = {
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.dailyConsumption': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.totalCost': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.goConsumption': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.goCost': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.standardConsumption': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.standardCost': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.dailyConsumption': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.totalCost': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.goConsumption': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.goCost': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.standardConsumption': { type: 'state' },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.standardCost': { type: 'state' },
-			};
+			const mockObjects = {};
+			const mockStates = {};
 
-			const mockStates = {
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.dailyConsumption': { val: 10 },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.totalCost': { val: 2 },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.goConsumption': { val: 4 },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.goCost': { val: 0.5 },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.standardConsumption': { val: 6 },
-				'octopus-energy-monitor.0.history.2026.04.20.octopus.standardCost': { val: 1.5 },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.dailyConsumption': { val: 15 },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.totalCost': { val: 3 },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.goConsumption': { val: 5 },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.goCost': { val: 0.6 },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.standardConsumption': { val: 10 },
-				'octopus-energy-monitor.0.history.2026.05.20.octopus.standardCost': { val: 2.4 },
-			};
+			// Generate all 30 days for period 2026-04-18 to 2026-05-17
+			const startGen = new Date(2026, 3, 18); // April 18
+			const endGen = new Date(2026, 4, 17); // May 17
+			const current = new Date(startGen);
+			while (current <= endGen) {
+				const y = current.getFullYear();
+				const m = String(current.getMonth() + 1).padStart(2, '0');
+				const d = String(current.getDate()).padStart(2, '0');
+				const basePath = `octopus-energy-monitor.0.history.${y}.${m}.${d}.octopus`;
+
+				mockObjects[`${basePath}.dailyConsumption`] = { type: 'state' };
+				mockObjects[`${basePath}.totalCost`] = { type: 'state' };
+				mockObjects[`${basePath}.goConsumption`] = { type: 'state' };
+				mockObjects[`${basePath}.goCost`] = { type: 'state' };
+				mockObjects[`${basePath}.standardConsumption`] = { type: 'state' };
+				mockObjects[`${basePath}.standardCost`] = { type: 'state' };
+
+				// Sum should end up as 10 consumption, 2 cost total
+				mockStates[`${basePath}.dailyConsumption`] = { val: 0.33333333 };
+				mockStates[`${basePath}.totalCost`] = { val: 0.06666667 };
+				mockStates[`${basePath}.goConsumption`] = { val: 0.13333333 };
+				mockStates[`${basePath}.goCost`] = { val: 0.01666667 };
+				mockStates[`${basePath}.standardConsumption`] = { val: 0.2 };
+				mockStates[`${basePath}.standardCost`] = { val: 0.05 };
+
+				current.setDate(current.getDate() + 1);
+			}
+
+			// Add only one day for the next period (should be incomplete)
+			mockObjects['octopus-energy-monitor.0.history.2026.05.20.octopus.dailyConsumption'] = { type: 'state' };
+			mockObjects['octopus-energy-monitor.0.history.2026.05.20.octopus.totalCost'] = { type: 'state' };
+			mockObjects['octopus-energy-monitor.0.history.2026.05.20.octopus.goConsumption'] = { type: 'state' };
+			mockObjects['octopus-energy-monitor.0.history.2026.05.20.octopus.goCost'] = { type: 'state' };
+			mockObjects['octopus-energy-monitor.0.history.2026.05.20.octopus.standardConsumption'] = { type: 'state' };
+			mockObjects['octopus-energy-monitor.0.history.2026.05.20.octopus.standardCost'] = { type: 'state' };
+
+			mockStates['octopus-energy-monitor.0.history.2026.05.20.octopus.dailyConsumption'] = { val: 15 };
+			mockStates['octopus-energy-monitor.0.history.2026.05.20.octopus.totalCost'] = { val: 3 };
+			mockStates['octopus-energy-monitor.0.history.2026.05.20.octopus.goConsumption'] = { val: 5 };
+			mockStates['octopus-energy-monitor.0.history.2026.05.20.octopus.goCost'] = { val: 0.6 };
+			mockStates['octopus-energy-monitor.0.history.2026.05.20.octopus.standardConsumption'] = { val: 10 };
+			mockStates['octopus-energy-monitor.0.history.2026.05.20.octopus.standardCost'] = { val: 2.4 };
 
 			const writtenStates = {};
 			const deletedObjects = [];
@@ -330,22 +346,15 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			// For the 2026-04-18 period (contains 2026.04.20):
 			expect(writtenStates['octopus.periods.2026-04-18.startDate']).to.equal('2026-04-18');
 			expect(writtenStates['octopus.periods.2026-04-18.endDate']).to.equal('2026-05-17');
-			expect(writtenStates['octopus.periods.2026-04-18.totalConsumption']).to.equal(10);
-			expect(writtenStates['octopus.periods.2026-04-18.totalCost']).to.equal(2);
-			expect(writtenStates['octopus.periods.2026-04-18.goConsumption']).to.equal(4);
-			expect(writtenStates['octopus.periods.2026-04-18.goCost']).to.equal(0.5);
-			expect(writtenStates['octopus.periods.2026-04-18.standardConsumption']).to.equal(6);
-			expect(writtenStates['octopus.periods.2026-04-18.standardCost']).to.equal(1.5);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.totalConsumption'].toFixed(0))).to.equal(10);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.totalCost'].toFixed(0))).to.equal(2);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.goConsumption'].toFixed(0))).to.equal(4);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.goCost'].toFixed(1))).to.equal(0.5);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.standardConsumption'].toFixed(0))).to.equal(6);
+			expect(parseFloat(writtenStates['octopus.periods.2026-04-18.standardCost'].toFixed(1))).to.equal(1.5);
 
-			// For the 2026-05-18 period (contains 2026.05.20):
-			expect(writtenStates['octopus.periods.2026-05-18.startDate']).to.equal('2026-05-18');
-			expect(writtenStates['octopus.periods.2026-05-18.endDate']).to.equal('2026-06-17');
-			expect(writtenStates['octopus.periods.2026-05-18.totalConsumption']).to.equal(15);
-			expect(writtenStates['octopus.periods.2026-05-18.totalCost']).to.equal(3);
-			expect(writtenStates['octopus.periods.2026-05-18.goConsumption']).to.equal(5);
-			expect(writtenStates['octopus.periods.2026-05-18.goCost']).to.equal(0.6);
-			expect(writtenStates['octopus.periods.2026-05-18.standardConsumption']).to.equal(10);
-			expect(writtenStates['octopus.periods.2026-05-18.standardCost']).to.equal(2.4);
+			// The 2026-05-18 period is incomplete, so it must NOT be written
+			expect(writtenStates['octopus.periods.2026-05-18.startDate']).to.be.undefined;
 		});
 	});
 });

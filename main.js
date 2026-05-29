@@ -1739,6 +1739,7 @@ class EnergyCompare extends utils.Adapter {
 
 		// Store dynamic periods map: periodStartDate (format: YYYY-MM-DD) -> periodData
 		const periodMap = {};
+		const existingDays = new Set();
 
 		const formatDateStr = d => {
 			return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -1753,6 +1754,7 @@ class EnergyCompare extends utils.Adapter {
 					const year = parts[0];
 					const month = parts[1];
 					const day = parts[2];
+					existingDays.add(`${year}-${month}-${day}`);
 
 					if (!yearMap[year]) {
 						yearMap[year] = { consumption: 0, cost: 0, months: {} };
@@ -1822,6 +1824,32 @@ class EnergyCompare extends utils.Adapter {
 						}
 					}
 				}
+			}
+		}
+
+		// Filter periodMap: only keep periods with a complete dataset of past/elapsed days
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		yesterday.setHours(0, 0, 0, 0);
+
+		for (const [key, pData] of Object.entries(periodMap)) {
+			let isComplete = true;
+			const checkStart = new Date(pData.start);
+			const checkEnd = pData.end < yesterday ? new Date(pData.end) : new Date(yesterday);
+
+			const currentCheck = new Date(checkStart);
+			while (currentCheck <= checkEnd) {
+				const dateStr = `${currentCheck.getFullYear()}-${String(currentCheck.getMonth() + 1).padStart(2, '0')}-${String(currentCheck.getDate()).padStart(2, '0')}`;
+				if (!existingDays.has(dateStr)) {
+					isComplete = false;
+					this.log.debug(`Period starting ${key} is incomplete: missing day ${dateStr}`);
+					break;
+				}
+				currentCheck.setDate(currentCheck.getDate() + 1);
+			}
+
+			if (!isComplete) {
+				delete periodMap[key];
 			}
 		}
 
