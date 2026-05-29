@@ -69,7 +69,7 @@ To install this adapter seamlessly into your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.6.0 (2026-05-29)
 * (tipp88) Added option to set a custom billing period start day, with automatic calculation, standard slot-split metrics, and aggregation under the dynamic `octopus.periods` tree.
 * (tipp88) Implemented completeness check for billing periods: periods are only written to the object tree if all required daily data points are present in the history database.
 * (tipp88) Integrated monthly standing charge (`monthlyStandingCharge`) from Kraken GraphQL API via the active tariff agreement ID, with proportional cost calculation added to both billing periods and the current calendar month.
