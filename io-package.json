@@ -178,7 +178,16 @@
     "updateInterval": 60,
     "splitGoTariff": false,
     "syncDays": 30,
-    "retentionDays": 0
+    "retentionDays": 0,
+    "enwgEnabled": false,
+    "enwgStartDate": "",
+    "enwgGridFeeStNet": 0,
+    "enwgGridFeeStGross": 0,
+    "enwgGridFeeNtNet": 0,
+    "enwgGridFeeNtGross": 0,
+    "enwgGridFeeHtNet": 0,
+    "enwgGridFeeHtGross": 0,
+    "enwgTimeWindows": []
   },
   "objects": [],
   "instanceObjects": []

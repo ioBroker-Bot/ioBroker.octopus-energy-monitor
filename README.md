@@ -61,6 +61,7 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 
 ## Changelog
 ### **WORK IN PROGRESS**
+* (tipp88) Added optional §14a EnWG price calculation support with NT/ST/HT time windows, custom grid fees, and automatic retroactive recalculation.
 * (tipp88) Moved periodic adapter run logs from info to debug level.
 
 ### 0.5.5 (2026-05-12)
