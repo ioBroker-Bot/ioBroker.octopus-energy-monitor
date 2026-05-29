@@ -205,4 +205,39 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			expect(result.HT.net).to.equal(0.15);
 		});
 	});
+
+	describe('getPeriodDates', () => {
+		it('should return correct start and end dates for a standard period (start day 18)', () => {
+			const date = new Date(2026, 4, 29); // May 29, 2026
+			const period = adapter.getPeriodDates(date, 18);
+			expect(period.start.getFullYear()).to.equal(2026);
+			expect(period.start.getMonth()).to.equal(4); // May (0-indexed)
+			expect(period.start.getDate()).to.equal(18);
+			expect(period.end.getFullYear()).to.equal(2026);
+			expect(period.end.getMonth()).to.equal(5); // June
+			expect(period.end.getDate()).to.equal(17);
+		});
+
+		it('should return correct start and end dates when date is before the startDay in the month', () => {
+			const date = new Date(2026, 4, 15); // May 15, 2026
+			const period = adapter.getPeriodDates(date, 18);
+			expect(period.start.getFullYear()).to.equal(2026);
+			expect(period.start.getMonth()).to.equal(3); // April
+			expect(period.start.getDate()).to.equal(18);
+			expect(period.end.getFullYear()).to.equal(2026);
+			expect(period.end.getMonth()).to.equal(4); // May
+			expect(period.end.getDate()).to.equal(17);
+		});
+
+		it('should return correct start and end dates when startDay is 1 (calendar month)', () => {
+			const date = new Date(2026, 4, 15); // May 15, 2026
+			const period = adapter.getPeriodDates(date, 1);
+			expect(period.start.getFullYear()).to.equal(2026);
+			expect(period.start.getMonth()).to.equal(4); // May
+			expect(period.start.getDate()).to.equal(1);
+			expect(period.end.getFullYear()).to.equal(2026);
+			expect(period.end.getMonth()).to.equal(4); // May
+			expect(period.end.getDate()).to.equal(31);
+		});
+	});
 });

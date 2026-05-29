@@ -119,6 +119,16 @@ class EnergyCompare extends utils.Adapter {
 			common: { name: 'Current Month Aggregation' },
 			native: {},
 		});
+		await this.setObjectNotExistsAsync('octopus.currentPeriod', {
+			type: 'channel',
+			common: { name: 'Current Billing Period Aggregation' },
+			native: {},
+		});
+		await this.setObjectNotExistsAsync('octopus.lastPeriod', {
+			type: 'channel',
+			common: { name: 'Last Billing Period Aggregation' },
+			native: {},
+		});
 
 		await this.setObjectNotExistsAsync('octopus.historyJson', {
 			type: 'state',
@@ -569,6 +579,29 @@ class EnergyCompare extends utils.Adapter {
 		}
 
 		return { valid: true };
+	}
+
+	/**
+	 * Calculates the start and end Date objects (local time) for the billing period containing the given date.
+	 *
+	 * @param {Date} date Reference date
+	 * @param {number} startDay Start day of the billing period (1 to 28)
+	 * @returns {{start: Date, end: Date}} Calculated period start and end dates
+	 */
+	getPeriodDates(date, startDay) {
+		const year = date.getFullYear();
+		const month = date.getMonth();
+		let start, end;
+		if (date.getDate() >= startDay) {
+			start = new Date(year, month, startDay);
+			end = new Date(year, month + 1, startDay - 1);
+		} else {
+			start = new Date(year, month - 1, startDay);
+			end = new Date(year, month, startDay - 1);
+		}
+		start.setHours(0, 0, 0, 0);
+		end.setHours(23, 59, 59, 999);
+		return { start, end };
 	}
 
 	getEnwgTariffForTime(date, config) {
@@ -1684,6 +1717,15 @@ class EnergyCompare extends utils.Adapter {
 		const currentY = new Date().getFullYear();
 		const currentM = String(new Date().getMonth() + 1).padStart(2, '0');
 
+		const billingPeriodStartDay = this.config.billingPeriodStartDay || 1;
+		const today = new Date();
+		const currentPeriod = this.getPeriodDates(today, billingPeriodStartDay);
+		const lastPeriodDate = new Date(currentPeriod.start.getTime() - 24 * 60 * 60 * 1000);
+		const lastPeriod = this.getPeriodDates(lastPeriodDate, billingPeriodStartDay);
+
+		let currentPeriodTotals = { consumption: 0, cost: 0 };
+		let lastPeriodTotals = { consumption: 0, cost: 0 };
+
 		for (const id of Object.keys(objects)) {
 			if (id.startsWith(historyPrefix)) {
 				const relativeId = id.substring(historyPrefix.length);
@@ -1716,6 +1758,20 @@ class EnergyCompare extends utils.Adapter {
 					if (year === String(currentY) && month === currentM) {
 						currentMonthTotals.consumption += cons;
 						currentMonthTotals.cost += cost;
+					}
+
+					const yearNum = parseInt(year, 10);
+					const monthNum = parseInt(month, 10);
+					const dayNum = parseInt(parts[2], 10);
+					const stateDate = new Date(yearNum, monthNum - 1, dayNum);
+
+					if (stateDate >= currentPeriod.start && stateDate <= currentPeriod.end) {
+						currentPeriodTotals.consumption += cons;
+						currentPeriodTotals.cost += cost;
+					}
+					if (stateDate >= lastPeriod.start && stateDate <= lastPeriod.end) {
+						lastPeriodTotals.consumption += cons;
+						lastPeriodTotals.cost += cost;
 					}
 				}
 			}
@@ -1762,6 +1818,67 @@ class EnergyCompare extends utils.Adapter {
 			'octopus.currentMonth.totalCost',
 			'Current Month Cost',
 			parseFloat(currentMonthTotals.cost.toFixed(2)),
+			'value',
+			'number',
+			'€',
+		);
+
+		// Write custom billing periods
+		const formatDateStr = d => {
+			return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+		};
+
+		await this.writeStateObject(
+			'octopus.currentPeriod.startDate',
+			'Current Period Start Date',
+			formatDateStr(currentPeriod.start),
+			'text',
+			'string',
+		);
+		await this.writeStateObject(
+			'octopus.currentPeriod.endDate',
+			'Current Period End Date',
+			formatDateStr(currentPeriod.end),
+			'text',
+			'string',
+		);
+		await this.writeStateObject(
+			'octopus.currentPeriod.totalConsumption',
+			'Current Period Consumption',
+			parseFloat(currentPeriodTotals.consumption.toFixed(3)),
+		);
+		await this.writeStateObject(
+			'octopus.currentPeriod.totalCost',
+			'Current Period Cost',
+			parseFloat(currentPeriodTotals.cost.toFixed(2)),
+			'value',
+			'number',
+			'€',
+		);
+
+		await this.writeStateObject(
+			'octopus.lastPeriod.startDate',
+			'Last Period Start Date',
+			formatDateStr(lastPeriod.start),
+			'text',
+			'string',
+		);
+		await this.writeStateObject(
+			'octopus.lastPeriod.endDate',
+			'Last Period End Date',
+			formatDateStr(lastPeriod.end),
+			'text',
+			'string',
+		);
+		await this.writeStateObject(
+			'octopus.lastPeriod.totalConsumption',
+			'Last Period Consumption',
+			parseFloat(lastPeriodTotals.consumption.toFixed(3)),
+		);
+		await this.writeStateObject(
+			'octopus.lastPeriod.totalCost',
+			'Last Period Cost',
+			parseFloat(lastPeriodTotals.cost.toFixed(2)),
 			'value',
 			'number',
 			'€',

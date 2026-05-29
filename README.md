@@ -61,6 +61,7 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 
 ## Changelog
 ### **WORK IN PROGRESS**
+* (tipp88) Added option to set a custom billing period start day, with automatic calculation and aggregation under `currentPeriod` and `lastPeriod` states.
 * (tipp88) Added optional §14a EnWG price calculation support with NT/ST/HT time windows, custom grid fees, and automatic retroactive recalculation.
 * (tipp88) Refactored §14a EnWG support: EnWG states are only created when setting is enabled, simplified grid fee inputs to gross/net toggle, and fixed time window configuration table columns.
 * (tipp88) Moved periodic adapter run logs from info to debug level.

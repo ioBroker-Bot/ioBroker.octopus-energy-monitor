@@ -185,7 +185,8 @@
     "enwgGridFeeNt": "0",
     "enwgGridFeeHt": "0",
     "enwgGridFeesAreGross": false,
-    "enwgTimeWindows": []
+    "enwgTimeWindows": [],
+    "billingPeriodStartDay": 1
   },
   "objects": [],
   "instanceObjects": []
