@@ -43,7 +43,6 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 				enwgEnabled: true,
 				enwgTimeWindows: [
 					{ tariff: 'NT', months: '*', startTime: '00:00', endTime: '06:00' },
-					{ tariff: 'ST', months: '*', startTime: '06:00', endTime: '22:00' },
 					{ tariff: 'HT', months: '*', startTime: '22:00', endTime: '24:00' },
 				],
 			};
@@ -84,7 +83,6 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			enwgTimeWindows: [
 				{ tariff: 'NT', months: '1,2,11,12', startTime: '00:00', endTime: '06:00' },
 				{ tariff: 'HT', months: '1,2,11,12', startTime: '17:00', endTime: '19:00' },
-				{ tariff: 'ST', months: '*', startTime: '00:00', endTime: '24:00' }, // ST fallback window
 			],
 		};
 
@@ -113,7 +111,6 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			enwgTimeWindows: [
 				{ tariff: 'NT', months: '1,2,11,12', startTime: '00:00', endTime: '06:00' },
 				{ tariff: 'HT', months: '1,2,11,12', startTime: '17:00', endTime: '19:00' },
-				{ tariff: 'ST', months: '*', startTime: '00:00', endTime: '24:00' },
 			],
 		};
 

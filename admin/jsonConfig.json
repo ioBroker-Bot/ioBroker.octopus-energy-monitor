@@ -260,22 +260,18 @@
 									"label": "NT (Low Tariff)"
 								},
 								{
-									"value": "ST",
-									"label": "ST (Standard Tariff)"
-								},
-								{
 									"value": "HT",
 									"label": "HT (High Tariff)"
 								}
 							],
-							"xs": 3
+							"width": "160px"
 						},
 						{
 							"type": "text",
 							"attr": "months",
 							"title": "Active Months",
 							"help": "Comma-separated list of months (1-12), e.g. 1,2,11,12 or * for all",
-							"xs": 3
+							"width": "200px"
 						},
 						{
 							"type": "select",
@@ -667,7 +663,7 @@
 									"label": "23:45"
 								}
 							],
-							"xs": 3
+							"width": "120px"
 						},
 						{
 							"type": "select",
@@ -1059,7 +1055,7 @@
 									"label": "24:00"
 								}
 							],
-							"xs": 3
+							"width": "120px"
 						}
 					]
 				}
