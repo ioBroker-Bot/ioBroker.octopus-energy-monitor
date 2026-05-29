@@ -144,6 +144,71 @@ class EnergyCompare extends utils.Adapter {
 			native: {},
 		});
 
+		if (this.enwgEnabled) {
+			await this.setObjectNotExistsAsync('octopus.info.enwg', {
+				type: 'channel',
+				common: { name: '§14a EnWG Info' },
+				native: {},
+			});
+			const fees = this.getEnwgGridFees(this.config);
+			await this.writeStateObject(
+				'octopus.info.enwg.gridFeeStNet',
+				'ST Grid Fee Net',
+				fees.ST.net,
+				'value',
+				'number',
+				'€/kWh',
+			);
+			await this.writeStateObject(
+				'octopus.info.enwg.gridFeeStGross',
+				'ST Grid Fee Gross',
+				fees.ST.gross,
+				'value',
+				'number',
+				'€/kWh',
+			);
+			await this.writeStateObject(
+				'octopus.info.enwg.gridFeeNtNet',
+				'NT Grid Fee Net',
+				fees.NT.net,
+				'value',
+				'number',
+				'€/kWh',
+			);
+			await this.writeStateObject(
+				'octopus.info.enwg.gridFeeNtGross',
+				'NT Grid Fee Gross',
+				fees.NT.gross,
+				'value',
+				'number',
+				'€/kWh',
+			);
+			await this.writeStateObject(
+				'octopus.info.enwg.gridFeeHtNet',
+				'HT Grid Fee Net',
+				fees.HT.net,
+				'value',
+				'number',
+				'€/kWh',
+			);
+			await this.writeStateObject(
+				'octopus.info.enwg.gridFeeHtGross',
+				'HT Grid Fee Gross',
+				fees.HT.gross,
+				'value',
+				'number',
+				'€/kWh',
+			);
+		} else {
+			await this.delObjectAsync('octopus.info.enwg.gridFeeStNet');
+			await this.delObjectAsync('octopus.info.enwg.gridFeeStGross');
+			await this.delObjectAsync('octopus.info.enwg.gridFeeNtNet');
+			await this.delObjectAsync('octopus.info.enwg.gridFeeNtGross');
+			await this.delObjectAsync('octopus.info.enwg.gridFeeHtNet');
+			await this.delObjectAsync('octopus.info.enwg.gridFeeHtGross');
+			await this.delObjectAsync('octopus.info.enwg');
+		}
+
 		if (this.config.inexogyEmail) {
 			await this.setObjectNotExistsAsync('inexogy.info', {
 				type: 'channel',
@@ -1447,26 +1512,6 @@ class EnergyCompare extends utils.Adapter {
 									'number',
 									'€',
 								);
-								const avgPrice =
-									slotData.consumption > 0 ? slotData.costGross / slotData.consumption : 0;
-								const avgPriceNet =
-									slotData.consumption > 0 ? slotData.costNet / slotData.consumption : 0;
-								await this.writeStateObject(
-									`${basePathDay}.octopus.${safeName}Price`,
-									`Price EnWG ${slotName}`,
-									parseFloat(avgPrice.toFixed(4)),
-									'value',
-									'number',
-									'€/kWh',
-								);
-								await this.writeStateObject(
-									`${basePathDay}.octopus.${safeName}PriceNet`,
-									`Price Net EnWG ${slotName}`,
-									parseFloat(avgPriceNet.toFixed(4)),
-									'value',
-									'number',
-									'€/kWh',
-								);
 							}
 						} else if (this.enwgEnabled) {
 							for (const slotName of ['NT', 'ST', 'HT']) {
@@ -1491,22 +1536,6 @@ class EnergyCompare extends utils.Adapter {
 									'value',
 									'number',
 									'€',
-								);
-								await this.writeStateObject(
-									`${basePathDay}.octopus.${safeName}Price`,
-									`Price EnWG ${slotName}`,
-									0,
-									'value',
-									'number',
-									'€/kWh',
-								);
-								await this.writeStateObject(
-									`${basePathDay}.octopus.${safeName}PriceNet`,
-									`Price Net EnWG ${slotName}`,
-									0,
-									'value',
-									'number',
-									'€/kWh',
 								);
 							}
 						}
@@ -1794,10 +1823,6 @@ class EnergyCompare extends utils.Adapter {
 						(await this.getStateAsync(`${basePath}.octopus.${slotName}Cost`))?.val || 0;
 					dayObj[`${slotName}CostNet`] =
 						(await this.getStateAsync(`${basePath}.octopus.${slotName}CostNet`))?.val || 0;
-					dayObj[`${slotName}Price`] =
-						(await this.getStateAsync(`${basePath}.octopus.${slotName}Price`))?.val || 0;
-					dayObj[`${slotName}PriceNet`] =
-						(await this.getStateAsync(`${basePath}.octopus.${slotName}PriceNet`))?.val || 0;
 				}
 			}
 
