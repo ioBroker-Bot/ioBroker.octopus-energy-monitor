@@ -27,6 +27,8 @@ Its key purpose is identifying discrepancies in billing/measurement between your
 * **Smart Charging Control:** Dynamically fetch Intelligent Octopus devices (EVs/chargers) and toggle Smart Charging (Suspend/Resume) directly from ioBroker.
 * **Inexogy Master Data & Live Reading:** Fetch serial numbers, location details, and current meter readings (Bezug/Einspeisung) from Inexogy.
 * **Smart Caching:** Minimizes API load by retroactively syncing only missing data points (30-day default).
+* **§14a EnWG Price Calculation:** Optional tariff calculation for controllable consumption devices (Steuerbare Verbrauchseinrichtung) with custom time windows (NT/HT) and automatic standard tariff (ST) fallback.
+* **Custom Billing Periods:** Aggregates and tracks energy consumption and costs based on your custom billing period start day (e.g., 18th to 17th) under `currentPeriod` and `lastPeriod` channels.
 
 ---
 
@@ -50,12 +52,19 @@ To install this adapter seamlessly into your ioBroker environment:
    - Enter your standard Octopus login credentials (Email & Password).
    - Input your Account Number (usually starts with `A-`).
    - *(Optional)* Property ID: If Kraken refuses to dynamically match your `propertyId`, you can explicitly set it here to hard-override the Graph query.
+   - **Billing Period Start Day:** Day of the month on which your billing cycle starts (default is `1` for normal calendar month). If your cycle is from the 18th of one month to the 17th of the next, select `18` to generate the custom period channels `currentPeriod` and `lastPeriod`.
    
 2. **Inexogy:**
    - Enter your Inexogy portal Email & Password. The adapter automatically manages Basic Auth parsing and translates it into Discovergy API queries.
 
 3. **General Settings:**
    - **Discrepancy Threshold:** Defines how many `kWh` difference must be present between Octopus and Inexogy to trigger the `hasDiscrepancy: true` state flag. Default is `0.1 kWh`.
+
+4. **§14a EnWG Settings (Optional):**
+   - **Enable § 14a EnWG Calculation:** If activated, calculates daily energy prices taking into account reduced grid fees for controllable consumption devices.
+   - **Applicable From Date (YYYY-MM-DD):** Defines when the EnWG calculation should start. Changing this date (or grid fees/time windows) triggers an automatic retroactive recalculation of all historical data.
+   - **Grid Fees:** Input your local NT, HT, and ST grid fees. Use the checkbox to specify whether the input values are gross (including 19% VAT) or net.
+   - **Configured Time Windows:** Define your local NT (low tariff) and HT (high tariff) times per month. Times that are not defined automatically fallback to ST (standard tariff). Windows must not overlap within the same month.
 
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
