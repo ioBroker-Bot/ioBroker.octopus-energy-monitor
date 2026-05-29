@@ -1717,7 +1717,7 @@ class EnergyCompare extends utils.Adapter {
 		const currentY = new Date().getFullYear();
 		const currentM = String(new Date().getMonth() + 1).padStart(2, '0');
 
-		const billingPeriodStartDay = this.config.billingPeriodStartDay || 1;
+		const billingPeriodStartDay = Number(this.config.billingPeriodStartDay) || 1;
 		const today = new Date();
 		const currentPeriod = this.getPeriodDates(today, billingPeriodStartDay);
 		const lastPeriodDate = new Date(currentPeriod.start.getTime() - 24 * 60 * 60 * 1000);
