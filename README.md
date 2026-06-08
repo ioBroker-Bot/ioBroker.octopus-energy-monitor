@@ -70,14 +70,16 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 
 ## Changelog
 ### **WORK IN PROGRESS**
-* (tipp88) Fixed repository compliance issues: added missing intermediate parent folder/channel/device structures.
-* (tipp88) Updated minimum Node.js engine requirement to Node 22.
 * (tipp88) Upgraded out-of-date devDependencies (including typescript to ~6.0.3) and updated TSConfig base reference to Node 22.
 * (tipp88) Adjusted CI test matrix to test Node 22 and 24 (dropping unsupported Node 20).
-* (tipp88) Excluded unit test files from TypeScript typecheck scope.
+* (tipp88) Excluded unit test files from TypeScript typecheck scope and Fixed a time-dependent unit test bug in `main.test.js` by mocking global Date.
+
+### 0.6.1 (2026-06-08)
+* (tipp88) Fixed repository compliance issues: added missing intermediate parent folder/channel/device structures.
+* (tipp88) Updated minimum Node.js engine requirement to Node 22.
+* (tipp88) Upgraded out-of-date devDependencies and added Node.js 20 testing to CI matrix.
 * (tipp88) Added ignore rule for `@types/node` major version updates to Dependabot.
 * (tipp88) Populated missing admin configuration translation keys for all languages.
-* (tipp88) Fixed a time-dependent unit test bug in `main.test.js` by mocking global Date.
 
 ### 0.6.0 (2026-05-29)
 * (tipp88) Added option to set a custom billing period start day, with automatic calculation, standard slot-split metrics, and aggregation under the dynamic `octopus.periods` tree.
