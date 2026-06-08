@@ -69,6 +69,13 @@ To install this adapter seamlessly into your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (tipp88) Fixed repository compliance issues: added missing intermediate parent folder/channel/device structures.
+* (tipp88) Updated minimum Node.js engine requirement to Node 22.
+* (tipp88) Upgraded out-of-date devDependencies and added Node.js 20 testing to CI matrix.
+* (tipp88) Added ignore rule for `@types/node` major version updates to Dependabot.
+* (tipp88) Populated missing admin configuration translation keys for all languages.
+
 ### 0.6.0 (2026-05-29)
 * (tipp88) Added option to set a custom billing period start day, with automatic calculation, standard slot-split metrics, and aggregation under the dynamic `octopus.periods` tree.
 * (tipp88) Implemented completeness check for billing periods: periods are only written to the object tree if all required daily data points are present in the history database.

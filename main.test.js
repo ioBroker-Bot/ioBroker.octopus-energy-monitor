@@ -242,6 +242,28 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 	});
 
 	describe('aggregateHistory', () => {
+		let RealDate;
+
+		before(() => {
+			RealDate = global.Date;
+			// @ts-ignore
+			global.Date = function (...args) {
+				if (args.length === 0) {
+					return new RealDate(2026, 4, 29); // May 29, 2026
+				}
+				// @ts-ignore
+				return new RealDate(...args);
+			};
+			global.Date.now = () => new RealDate(2026, 4, 29).getTime();
+			global.Date.UTC = RealDate.UTC;
+			global.Date.parse = RealDate.parse;
+			global.Date.prototype = RealDate.prototype;
+		});
+
+		after(() => {
+			global.Date = RealDate;
+		});
+
 		it('should group daily consumption into correct period folders and dynamically sum slots', async () => {
 			const mockObjects = {};
 			const mockStates = {};

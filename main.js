@@ -109,9 +109,19 @@ class EnergyCompare extends utils.Adapter {
 			common: { name: 'Energy History' },
 			native: {},
 		});
+		await this.setObjectNotExistsAsync('octopus', {
+			type: 'device',
+			common: { name: 'Octopus Energy' },
+			native: {},
+		});
 		await this.setObjectNotExistsAsync('octopus.info', {
 			type: 'channel',
 			common: { name: 'Octopus Master Data' },
+			native: {},
+		});
+		await this.setObjectNotExistsAsync('octopus.info.rates', {
+			type: 'channel',
+			common: { name: 'Octopus Rates' },
 			native: {},
 		});
 		await this.setObjectNotExistsAsync('octopus.currentMonth', {
@@ -237,6 +247,12 @@ class EnergyCompare extends utils.Adapter {
 		}
 
 		if (this.config.inexogyEmail) {
+			await this.setObjectNotExistsAsync('inexogy', {
+				type: 'device',
+				common: { name: 'Inexogy Smart Meter' },
+				native: {},
+			});
+
 			await this.setObjectNotExistsAsync('inexogy.info', {
 				type: 'channel',
 				common: { name: 'Inexogy Master Data' },
@@ -1334,6 +1350,11 @@ class EnergyCompare extends utils.Adapter {
 					);
 
 					if (device.status) {
+						await this.setObjectNotExistsAsync(`${basePath}.status`, {
+							type: 'channel',
+							common: { name: 'Device Status' },
+							native: {},
+						});
 						await this.writeStateObject(
 							`${basePath}.status.current`,
 							'Current Status',
@@ -1553,6 +1574,23 @@ class EnergyCompare extends utils.Adapter {
 						common: { name: `Day ${yearStr}-${monthStr}-${dayStr}` },
 						native: {},
 					});
+					await this.setObjectNotExistsAsync(`${basePathDay}.octopus`, {
+						type: 'channel',
+						common: { name: 'Octopus Energy Data' },
+						native: {},
+					});
+					if (this.hasInexogy) {
+						await this.setObjectNotExistsAsync(`${basePathDay}.inexogy`, {
+							type: 'channel',
+							common: { name: 'Inexogy Smart Meter Data' },
+							native: {},
+						});
+						await this.setObjectNotExistsAsync(`${basePathDay}.comparison`, {
+							type: 'channel',
+							common: { name: 'Comparison Data' },
+							native: {},
+						});
+					}
 
 					const octopusData = await this.fetchOctopus(targetDate, endDate);
 					let inexogyData = null;
