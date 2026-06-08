@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "news": {
+      "0.6.1": {
+        "en": "Fixed repository compliance issues: added missing intermediate parent folder/channel/device structures.\nUpdated minimum Node.js engine requirement to Node 22.\nUpgraded out-of-date devDependencies and added Node.js 20 testing to CI matrix.\nAdded ignore rule for `@types/node` major version updates to Dependabot.\nPopulated missing admin configuration translation keys for all languages.",
+        "de": "Compliance-Probleme bei Fixed Repository: fehlende Zwischenordner/Kanal/Gerätestrukturen hinzugefügt.\nAktualisierte Mindest Node.js-Motoranforderung an Node 22.\nAktualisierte veraltete devDependenzen und fügte Node.js 20-Tests zur CI-Matrix hinzu.\nHinzugefügt Ignorierregel für `@types/node` Hauptversionsupdates für Dependabot.\nFehlende Administratorkonfigurations-Übersetzungsschlüssel für alle Sprachen.",
+        "ru": "Проблемы с соблюдением установленных репозиториев: добавлены недостающие промежуточные структуры папки/канала/устройства.\nОбновлено минимальное требование Node.js к Node 22.\nОбновлена устаревшая версия DevDependencies и добавлено тестирование Node.js 20 в матрицу CI.\nДобавлено правило «@types/node» для основных обновлений версий.\nНаселенные отсутствующие ключи перевода конфигурации администратора для всех языков.",
+        "pt": "Problemas de conformidade com o repositório fixo: adicionar pasta/canal/dispositivo intermediário ausente.\nRequisitos mínimos atualizados do motor Node.js para Node 22.\nDevDependências desatualizadas atualizadas e testes Node.js 20 adicionados à matriz CI.\nAdicionado ignorar regra para `@types/node` principais atualizações de versão para Debabot.\nFaltam as chaves de tradução de configuração do administrador para todos os idiomas.",
+        "nl": "Fixed repository compliance issues: ontbrekende tussenliggende oudermap/kanaal/apparaatstructuren toegevoegd.\nBijgewerkt minimale Node.js motor vereiste naar Node 22.\nOpgewaardeerd verouderde devDependencies en toegevoegd Node.js 20 testen aan CI matrix.\nToegevoegd Negeer regel voor de belangrijkste versie updates van de Dependabot.\nGepopuleerde ontbrekende admin configuratie vertaalsleutels voor alle talen.",
+        "fr": "Problèmes de conformité du dépôt fixe : ajout de structures intermédiaires de dossier/canal/dispositif.\nMise à jour des prescriptions minimales relatives au moteur Node.js au Node 22.\nMise à jour des devDependences et ajout des tests Node.js 20 à la matrice CI.\nAjout de la règle d'exclusion pour `@types/node` les mises à jour des versions majeures de Dependabot.\nPopulation des clés de traduction de configuration d'administration manquantes pour toutes les langues.",
+        "it": "Problemi di conformità del repository fissi: aggiunto mancante cartella madre intermedia / canali / strutture di dispositivo.\nIl requisito minimo aggiornato del motore Node.js a Node 22.\nSviluppato out-of-date devDependencies e aggiunto Node.js 20 test alla matrice CI.\nAggiunto ignorare la regola per `@types/node` aggiornamenti principali versione a Dependabot.\nI tasti di traduzione di configurazione di amministratore mancanti per tutte le lingue.",
+        "es": "Cuestiones de cumplimiento del repositorio fijo: estructuras de carpeta/canal/dispositivos intermedias faltantes.\nActualizado mínimo Node.js requisito del motor para Node 22.\nActualizado devDependencies y añadido Node.js 20 pruebas a la matriz CI.\nAñadido ignore rule for `@types/node` major version updates to Dependabot.\nClaves de traducción de configuración de administrador perdidos Populado para todos los idiomas.",
+        "pl": "Stałe problemy z przestrzeganiem repozytorium: dodano brakujące pośrednie struktury folderu macierzystego / kanału / urządzenia.\nAktualizacja minimalnego wymogu silnika Node.js do węzła 22.\nZmodernizowane devDevendences poza datą i dodano Node.js 20 testów do matrycy CI.\nDodano regułę ignorowania dla '@ types / node' głównych wersji aktualizacji do Dependabot.\nPopulowane brakujące klucze do tłumaczenia konfiguracji administratora dla wszystkich języków.",
+        "uk": "Виправлено питання відповідності репозиторій: додано відсутні проміжні папки для батьків/каналу/розробки.\nОновлено мінімальну вимогу двигуна Node.js до Node 22.\nОновлення застарілих devDependencies та додано Node.js 20 тестування до матриці CI.\nДодано правило ігнорування `@types/node` основних оновлень версії для залежності.\nВідсутні ключі адміністратора для всіх мов.",
+        "zh-cn": "固定寄存器遵守问题:添加缺失的中间母文件夹/通道/装置结构.\n将最小节点Js引擎要求更新到节点22.\n升级了过时的devdependency,并在CI矩阵中增加了Node.js 20测试.\n添加到 Dependabot 的 QQ 类型/ 节点主要版本更新的忽略规则 .\n用于所有语言的流行缺失管理员配置翻译密钥 ."
+      },
       "0.6.0": {
         "en": "Added option to set a custom billing period start day, with automatic calculation, standard slot-split metrics, and aggregation under the dynamic `octopus.periods` tree.\nImplemented completeness check for billing periods: periods are only written to the object tree if all required daily data points are present in the history database.\nIntegrated monthly standing charge (`monthlyStandingCharge`) from Kraken GraphQL API via the active tariff agreement ID, with proportional cost calculation added to both billing periods and the current calendar month.\nAdded optional §14a EnWG price calculation support with NT/ST/HT time windows, custom grid fees, and automatic retroactive recalculation.\nRefactored §14a EnWG support: EnWG states are only created when setting is enabled, simplified grid fee inputs to gross/net toggle, and fixed time window configuration table columns.\nMoved periodic adapter run logs from info to debug level.",
         "de": "Option hinzugefügt, um einen benutzerdefinierten Abrechnungszeitraum Start Tag, mit automatischer Berechnung, Standard-Slot-Split Metriken, und Aggregation unter der dynamischen `octopus.periods` Baum.\nImplementierte Vollständigkeitsprüfung für Abrechnungszeiten: Perioden werden nur dann an den Objektbaum geschrieben, wenn alle erforderlichen Tagesdatenpunkte in der Geschichtsdatenbank vorliegen.\nIntegrierte monatliche Dauergebühr (`monatlichStandingCharge`) von Kraken GraphQL API über die aktive Tarifvertrags-ID, mit proportionaler Kostenberechnung sowohl in Abrechnungszeiten als auch im aktuellen Kalendermonat hinzugefügt.\nZusätzliche optionale Preisberechnungsunterstützung §14a EnWG mit NT/ST/HT Zeitfenstern, benutzerdefinierten Netzgebühren und automatischer retroaktiver Neuberechnung.\nRefactored §14a EnWG-Unterstützung: EnWG-Staaten werden nur erstellt, wenn die Einstellung aktiviert ist, vereinfachte Netzgebühr-Eingänge zu grobem/net-Toggle und feste Zeitfenster-Konfigurationstabellenspalten.\nVerschieben periodischen Adapter laufen Protokolle von Info zu Debug-Ebene.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono termin ważności tokena API poprzez wdrożenie automatycznego ponownego logowania.\nZastąpione stałe codzienne zadanie cron z konfigurowalnym interwał aktualizacji (domyślnie 60 minut).\nUsunięto uzależnienie od kijanki.",
         "uk": "Виправлено закінчення терміну дії API за допомогою автоматичного перереєстрації.\nЗамінена фіксована щоденна робота з налаштуванням інтервалу оновлення (default 60 хвилин).\nВилучена залежність вершини.",
         "zh-cn": "通过实施自动重登录,固定 API 令牌过期 .\n替换为可配置的更新间隔( 默认为 60 分钟) .\n删除节点- cron 依赖 ."
-      },
-      "0.4.2": {
-        "en": "Fixed Inexogy data syncing when Octopus data already exists.",
-        "de": "Feste Inexogy-Datensynchronisierung, wenn Octopus-Daten bereits vorhanden sind.",
-        "ru": "Фиксированная синхронизация данных при наличии данных Octopus.",
-        "pt": "Fixo a sincronização de dados da Inexogy quando os dados da Octopus já existem.",
-        "nl": "Fixed Inexogy data synchronisatie wanneer Octopus data al bestaat.",
-        "fr": "Correction de la synchronisation des données inexogy lorsque les données Octopus existent déjà.",
-        "it": "Risolto la sincronizzazione dei dati Inexogy quando i dati Octopus esistono già.",
-        "es": "Se fija la sincronización de datos Inexogy cuando los datos de Octopus ya existen.",
-        "pl": "Naprawiono synchronizację danych Inexogy, gdy istnieją już dane Octopus.",
-        "uk": "Виправлена синхронізація даних, коли дані Octopus вже існують.",
-        "zh-cn": "当Octopus数据已经存在时,固定的Inexogy数据同步."
       }
     },
     "titleLang": {
