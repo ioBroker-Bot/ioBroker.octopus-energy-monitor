@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "news": {
+      "0.6.2": {
+        "en": "Upgraded out-of-date devDependencies (including typescript to ~6.0.3) and updated TSConfig base reference to Node 22.\nAdjusted CI test matrix to test Node 22 and 24 (dropping unsupported Node 20).\nExcluded unit test files from TypeScript typecheck scope and Fixed a time-dependent unit test bug in `main.test.js` by mocking global Date.",
+        "de": "Aktualisierte out-of-date devDependencies (einschließlich Typescript auf ~6.0.3) und aktualisierte TSConfig-Basisreferenz auf Node 22.\nAngepasste CI-Testmatrix zum Testen von Node 22 und 24 (Droping nicht unterstützter Node 20).\nAusgeschlossene Unit-Testdateien aus TypeScript-Typprüfungsumfang und Behebung eines zeitabhängigen Unit-Testfehlers in \"main.test.js\", indem globales Datum verspottet wurde.",
+        "ru": "Обновленная устаревшая версия DevDependencies (включая Typescript до ~6.0.3) и обновленная базовая ссылка TSConfig на Node 22.\nСкорректированная тестовая матрица CI для тестирования узлов 22 и 24 (сбрасывание неподдерживаемого узла 20).\nИсключены файлы тестирования блоков из области TypeScript Typecheck и исправлена зависящая от времени ошибка тестирования блоков в «main.test.js», высмеивая глобальную дату.",
+        "pt": "DevDependências desatualizadas atualizadas (incluindo digitação para ~6.0.3) e referência de base atualizada do TSConfig para o Node 22.\nMatriz de teste CI ajustada para testar Node 22 e 24 (node 20 não suportado).\nArquivos de teste de unidade excluídos do escopo TypeScript typecheck e Fixo um bug de teste de unidade dependente do tempo em `main.test.js` simulando Data global.",
+        "nl": "Opgewaardeerde verouderde devDependencies (inclusief typescript naar ~6.03) en bijgewerkte TSConfig basis verwijzing naar Node 22.\nAangepaste CI-testmatrix om Node 22 en 24 te testen (niet-ondersteunde knoop 20).\nUitgesloten unit testbestanden van TypeScript typecheck scope en Vaste een tijd-afhankelijke eenheid test bug in .",
+        "fr": "Mise à jour des devDependences obsolètes (y compris la dactylographie à ~6.0.3) et mise à jour de la référence de base TSConfig au No 22.\nMatrice d'essai de l'IC ajustée pour tester les nœuds 22 et 24 (noeud sans support de chute 20).\nExcluded unit test files from TypeScript typcheck scope and Correction a time-dépended un unit test bug in `main.test.js` by making global Date.",
+        "it": "DevDependencies aggiornato (compreso il tipo a ~6.0.3) e il riferimento di base TSConfig aggiornato a Node 22.\nMatrice di prova CI regolata per testare il Nodo 22 e 24 (scaricando il Nodo 20 non supportato).\nEsclusi i file di prova di unità da campo di controllo tipoScript e fissato un bug di prova unità dipendente dal tempo in `main.test.js` mocking data globale.",
+        "es": "Dependencias actualizadas (incluyendo el tipo descript a ~6.0.3) y actualización TSConfig referencia base al Nodo 22.\nMatriz de prueba de CI ajustada para probar el Nodo 22 y 24 (nodo 20 sin soporte).\nArchivos de prueba de unidad excluidos del alcance de tipo TypeScript y Fija un error de prueba unidad dependiente del tiempo en `main.test.js` por burlarse de la fecha global.",
+        "pl": "Zmodernizowane devDevendences (w tym typescript do ~ 6.0.3) oraz zaktualizowane odniesienie bazy TSConfig do węzła 22.\nDostosowana matryca badania CI do badania węzła 22 i 24 (spadek nieobsługiwanego węzła 20).\nWyłączono pliki testowe jednostki z zakresu TypeScript typechell i naprawiono zależny od czasu błąd testowy jednostki w 'main.test.js' poprzez wyśmiewanie globalnej daty.",
+        "uk": "Оновлення застарілих devDependencies (в тому числі для ~6.0.3) та оновлено бази даних TSConfig до Node 22.\nРегульована CI тестова матриця для тестування Node 22 і 24 (розгортання непідтримуваних Node 20).\nВиключені тестові файли з TypeScript типуcheck і Виправлено часозалежний блок тестових помилок в `main.test.js` by mocking глобальної дати.",
+        "zh-cn": "更新过时的devDependency(包括字型标注为~6.0.3),更新的TSConfig基准参考节点22.\n调整了 CI 测试矩阵以测试节点 22 和 24(不支持 20) .\n将单元测试文件从TypeScript类型检查范围中排除,并在“main.test.js”中通过模拟全局日期来固定一个时间性单元测试错误."
+      },
       "0.6.1": {
         "en": "Fixed repository compliance issues: added missing intermediate parent folder/channel/device structures.\nUpdated minimum Node.js engine requirement to Node 22.\nUpgraded out-of-date devDependencies and added Node.js 20 testing to CI matrix.\nAdded ignore rule for `@types/node` major version updates to Dependabot.\nPopulated missing admin configuration translation keys for all languages.",
         "de": "Compliance-Probleme bei Fixed Repository: fehlende Zwischenordner/Kanal/Gerätestrukturen hinzugefügt.\nAktualisierte Mindest Node.js-Motoranforderung an Node 22.\nAktualisierte veraltete devDependenzen und fügte Node.js 20-Tests zur CI-Matrix hinzu.\nHinzugefügt Ignorierregel für `@types/node` Hauptversionsupdates für Dependabot.\nFehlende Administratorkonfigurations-Übersetzungsschlüssel für alle Sprachen.",
@@ -80,19 +93,6 @@
         "pl": "Wersja skonsolidowana: kontrola inteligentnego ładowania, dane podstawowe Inexogy, przycisk ręcznego odświeżania i poprawki sprawdzania repozytorium.",
         "uk": "Консолідований випуск: управління Smart Charging, основні дані Inexogy, кнопка ручного оновлення та виправлення репозиторію.",
         "zh-cn": "合并版本：智能充电控制、Inexogy 主数据、手动刷新按钮和存储库检查器修复。"
-      },
-      "0.4.3": {
-        "en": "Fixed API token expiration by implementing automatic re-login.\nReplaced fixed daily cron job with configurable update interval (default 60 minutes).\nRemoved node-cron dependency.",
-        "de": "Behobene API-Token-Experimente durch automatisches Re-Login.\nErsetzte feste tägliche Cron-Job mit konfigurierbarem Update-Intervall (Standard 60 Minuten).\nEntfernung von Node-Cron Abhängigkeit.",
-        "ru": "Исход фиксированного токена API путем реализации автоматического повторного входа в систему.\nЗамена фиксированной ежедневной работы cron с настраиваемым интервалом обновления (по умолчанию 60 минут).\nСнята зависимость Node-Cron.",
-        "pt": "Expiração fixa do token da API implementando o re-login automático.\nSubstituido trabalho cron diário fixo com intervalo de atualização configurável (padrão 60 minutos).\nDependência de nó- cron removida.",
-        "nl": "Vaste API token verlopen door het implementeren van automatische re-login.\nVervangde vaste dagelijkse cron taak met configureerbare update interval (standaard 60 minuten).\nVerwijderde node-cron afhankelijkheid.",
-        "fr": "Correction de l'expiration du jeton API en implémentant la re-login automatique.\nRemplace le travail de cron quotidien fixe par un intervalle de mise à jour configurable (60 minutes par défaut).\nSupprimé la dépendance au noeud cron.",
-        "it": "Espersione di token API fissa implementando la ri-login automatica.\nSostituito lavoro fisso giornaliero di cron con intervallo di aggiornamento configurabile (default 60 minuti).\nRimossa dipendenza da nodo-cron.",
-        "es": "Caducidad de token API fija mediante la implementación de re-login automático.\nTrabajo de cron fijo diario con intervalo de actualización configurable (por defecto 60 minutos).\nRetirada dependencia del nodo-cron.",
-        "pl": "Naprawiono termin ważności tokena API poprzez wdrożenie automatycznego ponownego logowania.\nZastąpione stałe codzienne zadanie cron z konfigurowalnym interwał aktualizacji (domyślnie 60 minut).\nUsunięto uzależnienie od kijanki.",
-        "uk": "Виправлено закінчення терміну дії API за допомогою автоматичного перереєстрації.\nЗамінена фіксована щоденна робота з налаштуванням інтервалу оновлення (default 60 хвилин).\nВилучена залежність вершини.",
-        "zh-cn": "通过实施自动重登录,固定 API 令牌过期 .\n替换为可配置的更新间隔( 默认为 60 分钟) .\n删除节点- cron 依赖 ."
       }
     },
     "titleLang": {

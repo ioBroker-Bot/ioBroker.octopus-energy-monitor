@@ -69,7 +69,7 @@ To install this adapter seamlessly into your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.6.2 (2026-06-08)
 * (tipp88) Upgraded out-of-date devDependencies (including typescript to ~6.0.3) and updated TSConfig base reference to Node 22.
 * (tipp88) Adjusted CI test matrix to test Node 22 and 24 (dropping unsupported Node 20).
 * (tipp88) Excluded unit test files from TypeScript typecheck scope and Fixed a time-dependent unit test bug in `main.test.js` by mocking global Date.
