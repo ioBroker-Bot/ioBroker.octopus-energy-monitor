@@ -257,7 +257,6 @@ describe('§14a EnWG Tariff Resolution & Validation Tests', () => {
 			global.Date.now = () => new RealDate(2026, 4, 29).getTime();
 			global.Date.UTC = RealDate.UTC;
 			global.Date.parse = RealDate.parse;
-			global.Date.prototype = RealDate.prototype;
 		});
 
 		after(() => {
