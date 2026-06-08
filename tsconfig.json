@@ -23,8 +23,7 @@
 		"noImplicitAny": false,
 		// "noUnusedLocals": true,
 		// "noUnusedParameters": true,
-		"useUnknownInCatchVariables": false,
-
+		"useUnknownInCatchVariables": false
 	},
 	"include": [
 		"**/*.js",
