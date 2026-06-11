@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "news": {
+      "0.6.3": {
+        "en": "Fixed repository compliance issues by removing custom GitHub/NPM installation instructions from README.md.\nUpgraded dependencies (axios to ^1.17.0, @tsconfig/node22 to ^22.0.5).",
+        "de": "Behebung von Compliance-Problemen im Repository durch Entfernen benutzerdefinierter GitHub/NPM-Installationsanweisungen aus README.md.\nVerbesserte Abhängigkeiten (axios zu ^1.17.0, @tsconfig/node22 zu ^22.0.5).",
+        "ru": "Устранение пользовательских инструкций по установке GitHub/NPM из README.md.\nОбновленные зависимости (axios to ^1.17.0, @tsconfig/node22 to ^22.0.5).",
+        "pt": "Problemas de conformidade com o repositório corrigidos removendo instruções de instalação personalizadas do GitHub/NPM de README.md.\nDependências atualizadas (axios para ^1.17.0, @tsconfig/node22 para ^22.0.5).",
+        "nl": "Fixed repository compliance problemen door het verwijderen van aangepaste GitHub/NPM installatie instructies van README.md.\nOpgewaardeerde afhankelijkheden (axio's tot ^17.0, @tsconfig/node22 tot ^22.0.5).",
+        "fr": "Correction des problèmes de conformité du dépôt en supprimant les instructions d'installation GitHub/NPM personnalisées de README.md.\nDes dépendances améliorées (axes à ^1.17,0, @tsconfig/node22 à ^22.0.5).",
+        "it": "Problemi di conformità del repository fissi rimuovendo le istruzioni di installazione personalizzate GitHub/NPM da README.md.\nDipendenze aggiornate (assios a ^1.17.0, @tsconfig/node22 a ^22.0.5).",
+        "es": "Problemas de cumplimiento de repositorios fijos eliminando instrucciones personalizadas de instalación GitHub/NPM de README.md.\nDependencias actualizadas (axios a ^1.17.0, @tsconfig/node22 a ^22.0.5).",
+        "pl": "Stałe kwestie zgodności repozytorium poprzez usunięcie własnych instrukcji instalacji GitHub / NPM z README.md.\nZmodernizowane zależności (axios do ^ 1.17.0, @ tsconfig / node22 do ^ 22.0.5).",
+        "uk": "Виправлено проблеми репозиторійної відповідності шляхом видалення користувацьких інструкцій встановлення GitHub/NPM від README.md.\nОновлення залежності (до ^1.17.0 @tsconfig/node22 до ^22.0.5).",
+        "zh-cn": "通过从 README.md 中删除自定义 GitHub/NPM 安装指令来解决固定寄存器遵守问题.\n升级依赖(xios to ^1.17.0, @tsconfig/node22 to ^22.0.5)."
+      },
       "0.6.2": {
         "en": "Upgraded out-of-date devDependencies (including typescript to ~6.0.3) and updated TSConfig base reference to Node 22.\nAdjusted CI test matrix to test Node 22 and 24 (dropping unsupported Node 20).\nExcluded unit test files from TypeScript typecheck scope and Fixed a time-dependent unit test bug in `main.test.js` by mocking global Date.",
         "de": "Aktualisierte out-of-date devDependencies (einschließlich Typescript auf ~6.0.3) und aktualisierte TSConfig-Basisreferenz auf Node 22.\nAngepasste CI-Testmatrix zum Testen von Node 22 und 24 (Droping nicht unterstützter Node 20).\nAusgeschlossene Unit-Testdateien aus TypeScript-Typprüfungsumfang und Behebung eines zeitabhängigen Unit-Testfehlers in \"main.test.js\", indem globales Datum verspottet wurde.",
@@ -80,19 +93,6 @@
         "pl": "Poprawiono brakujące atrybuty responsywnych rozmiarów w 'jsonConfig.json' (Wydanie # 1 po zakończeniu).\nZmień logo SVG i jego 'viewBox' na dokładnie 512x512 pikseli.",
         "uk": "Фіксувати відсутні атрибути чуйного розміру в `jsonConfig.json` (Issue #1 end-up).\nResize SVG логотип і його `viewBox` для точно 512x512 пікселів.",
         "zh-cn": "在“jsonConfig.json”(问题1后续)中修复缺失的响应大小属性.\n将 SVG 标志及其“ ViewBox” 修改为 512x512 像素 ."
-      },
-      "0.5.2": {
-        "en": "Consolidated release: Smart Charging control, Inexogy master data, manual refresh button, and repository checker fixes.",
-        "de": "Konsolidierte Version: Smart Charging Steuerung, Inexogy-Stammdaten, manueller Refresh-Button und Behebung von Repository-Checker-Issues.",
-        "ru": "Консолидированный выпуск: интеллектуальное управление зарядкой, основные данные Inexogy, кнопка ручного обновления и исправления для репозитория.",
-        "pt": "Lançamento consolidado: controle de carregamento inteligente, dados mestre Inexogy, botão de atualização manual e correções de verificação de repositório.",
-        "nl": "Geconsolideerde release: Smart Charging controle, Inexogy stamgegevens, handmatige verversingsknop, en repository checker fixes.",
-        "fr": "Version consolidée: contrôle de charge intelligent, données maîtres Inexogy, bouton de mise à jour manuel et correctifs du vérificateur de dépôt.",
-        "it": "Versione consolidata: controllo della ricarica intelligente, dati master Inexogy, pulsante di aggiornamento manuale e correzioni del verificatore di repository.",
-        "es": "Versión consolidada: control de carga inteligente, datos maestros de Inexogy, botón de actualización manual y correcciones del verificador de repositorio.",
-        "pl": "Wersja skonsolidowana: kontrola inteligentnego ładowania, dane podstawowe Inexogy, przycisk ręcznego odświeżania i poprawki sprawdzania repozytorium.",
-        "uk": "Консолідований випуск: управління Smart Charging, основні дані Inexogy, кнопка ручного оновлення та виправлення репозиторію.",
-        "zh-cn": "合并版本：智能充电控制、Inexogy 主数据、手动刷新按钮和存储库检查器修复。"
       }
     },
     "titleLang": {
