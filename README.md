@@ -34,15 +34,12 @@ Its key purpose is identifying discrepancies in billing/measurement between your
 
 ### ⚙️ Installation
 
-To install this adapter seamlessly into your ioBroker environment:
+To install this adapter in your ioBroker environment:
 
-1. Open your ioBroker Admin UI in the browser.
-2. Ensure Expert Mode is enabled (headman icon).
-3. Navigate to **"Adapters"**.
-4. Click the GitHub / Custom URL icon ("Install from custom URL").
-5. Switch to the **Custom** tab and paste the raw GitHub repository URL:
-   `https://github.com/tipp88/ioBroker.octopus-energy-monitor`
-6. Click install. Once downloaded, create a new instance (the little `+` button).
+1. Open your ioBroker Admin UI.
+2. Navigate to the **"Adapters"** tab.
+3. Search for **"Octopus Energy Monitor"** (or `octopus-energy-monitor`).
+4. Click the **+** (add) button next to the adapter to create a new instance.
 
 ---
 
@@ -69,6 +66,10 @@ To install this adapter seamlessly into your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (tipp88) Fixed repository compliance issues by removing custom GitHub/NPM installation instructions from README.md.
+* (tipp88) Upgraded dependencies (axios to ^1.17.0, @tsconfig/node22 to ^22.0.5).
+
 ### 0.6.2 (2026-06-08)
 * (tipp88) Upgraded out-of-date devDependencies (including typescript to ~6.0.3) and updated TSConfig base reference to Node 22.
 * (tipp88) Adjusted CI test matrix to test Node 22 and 24 (dropping unsupported Node 20).
