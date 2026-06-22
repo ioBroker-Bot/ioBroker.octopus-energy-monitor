@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "news": {
+      "0.6.4": {
+        "en": "Evaluated and upgraded `@iobroker/adapter-core` dependency from 3.3.2 to 3.4.1.\nChanged German adapter title in `io-package.json` to \"Octopus Energy Monitor\".",
+        "de": "Die Abhängigkeit `@iobroker/adapter-core` wurde von Version 3.3.2 auf 3.4.1 evaluiert und aktualisiert.\nDer deutsche Adaptertitel in der `io-package.json` wurde in \"Octopus Energy Monitor\" geändert.",
+        "ru": "Проведена оценка и обновление зависимости `@iobroker/adapter-core` с версии 3.3.2 до 3.4.1.\nИзменено название немецкого адаптера в файле `io-package.json` на \"Octopus Energy Monitor\".",
+        "pt": "A dependência `@iobroker/adapter-core` foi avaliada e atualizada da versão 3.3.2 para a 3.4.1.\nAlterei o título do adaptador alemão em `io-package.json` para \"Octopus Energy Monitor\".",
+        "nl": "De afhankelijkheid `@iobroker/adapter-core` is geëvalueerd en geüpgraded van 3.3.2 naar 3.4.1.\nDe titel van de Duitse adapter in `io-package.json` is gewijzigd naar \"Octopus Energy Monitor\".",
+        "fr": "Évaluation et mise à niveau de la dépendance `@iobroker/adapter-core` de la version 3.3.2 à la version 3.4.1.\nLe titre de l'adaptateur allemand dans `io-package.json` a été modifié en « Octopus Energy Monitor ».",
+        "it": "È stata valutata e aggiornata la dipendenza `@iobroker/adapter-core` dalla versione 3.3.2 alla 3.4.1.\nIl titolo dell'adattatore tedesco nel file `io-package.json` è stato modificato in \"Octopus Energy Monitor\".",
+        "es": "Se evaluó y actualizó la dependencia `@iobroker/adapter-core` de la versión 3.3.2 a la 3.4.1.\nSe cambió el título del adaptador alemán en `io-package.json` a \"Octopus Energy Monitor\".",
+        "pl": "Oceniono i zaktualizowano zależności `@iobroker/adapter-core` z wersji 3.3.2 do 3.4.1.\nZmieniono niemiecką nazwę adaptera w `io-package.json` na „Octopus Energy Monitor”.",
+        "uk": "Оцінено та оновлено залежність `@iobroker/adapter-core` з версії 3.3.2 до 3.4.1.\nЗмінено назву адаптера німецькою мовою в `io-package.json` на \"Octopus Energy Monitor\".",
+        "zh-cn": "对 `@iobroker/adapter-core` 依赖项进行了评估，并将其从 3.3.2 升级到 3.4.1。\n将 `io-package.json` 中的德语适配器标题更改为“Octopus Energy Monitor”。"
+      },
       "0.6.3": {
         "en": "Fixed repository compliance issues by removing custom GitHub/NPM installation instructions from README.md.\nUpgraded dependencies (axios to ^1.17.0, @tsconfig/node22 to ^22.0.5).",
         "de": "Behebung von Compliance-Problemen im Repository durch Entfernen benutzerdefinierter GitHub/NPM-Installationsanweisungen aus README.md.\nVerbesserte Abhängigkeiten (axios zu ^1.17.0, @tsconfig/node22 zu ^22.0.5).",
@@ -80,19 +93,6 @@
         "pl": "Uaktywnij zautomatyzowany strumień pracy wydawnictwa z zaufaną publikacją i integracją Sentry.",
         "uk": "Активувати автоматизований процес випуску з перевіреною публікацією та інтеграцією Sentry.",
         "zh-cn": "启动自动发布工作流程,与受托出版和哨兵集成."
-      },
-      "0.5.3": {
-        "en": "Fix missing responsive size attributes in `jsonConfig.json` (Issue #1 follow-up).\nResize SVG logo and its `viewBox` to exactly 512x512 pixels.",
-        "de": "Behebt fehlende Ansprechgrößenattribute in `jsonConfig.json` (Issue #1 Follow-up).\nGröße SVG-Logo und seine `viewBox` auf genau 512x512 Pixel.",
-        "ru": "Исправьте недостающие атрибуты размера в jsonConfig.json (выпуск No 1).\nРазмер логотипа SVG и его «viewBox» составляет ровно 512x512 пикселей.",
-        "pt": "Corrigir os atributos de tamanho responsivo em `jsonConfig.json` (follow-up do issue #1).\nRedimensione o logotipo SVG e seu 'viewBox' para exatamente 512x512 pixels.",
-        "nl": "Repareren ontbrekende responsieve grootte attributen in .\nGrootte SVG-logo en zijn .",
-        "fr": "Correction des attributs de taille réactive manquants dans `jsonConfig.json` (suivi d'Issue #1).\nRedimensionner le logo SVG et sa `viewBox` en 512x512 pixels.",
-        "it": "Fissare gli attributi mancanti di dimensione reattiva in `jsonConfig.json` (Issue #1 follow-up).\nRidimensiona il logo SVG e il suo `viewBox` a esattamente 512x512 pixel.",
-        "es": "Arreglar los atributos de tamaño receptivo desaparecidos en `jsonConfig.json` (Aplicación Isue #1).\nResize SVG logo and its `viewBox` to exact 512x512 pixels.",
-        "pl": "Poprawiono brakujące atrybuty responsywnych rozmiarów w 'jsonConfig.json' (Wydanie # 1 po zakończeniu).\nZmień logo SVG i jego 'viewBox' na dokładnie 512x512 pikseli.",
-        "uk": "Фіксувати відсутні атрибути чуйного розміру в `jsonConfig.json` (Issue #1 end-up).\nResize SVG логотип і його `viewBox` для точно 512x512 пікселів.",
-        "zh-cn": "在“jsonConfig.json”(问题1后续)中修复缺失的响应大小属性.\n将 SVG 标志及其“ ViewBox” 修改为 512x512 像素 ."
       }
     },
     "titleLang": {
