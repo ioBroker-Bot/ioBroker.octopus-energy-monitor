@@ -48,7 +48,6 @@ To install this adapter in your ioBroker environment:
 1. **Octopus Energy (Kraken):** 
    - Enter your standard Octopus login credentials (Email & Password).
    - Input your Account Number (usually starts with `A-`).
-   - *(Optional)* Property ID: If Kraken refuses to dynamically match your `propertyId`, you can explicitly set it here to hard-override the Graph query.
    - **Billing Period Start Day:** Day of the month on which your billing cycle starts (default is `1` for normal calendar month). If your cycle is from the 18th of one month to the 17th of the next, select `18` to generate the billing period folders under `octopus.periods.<startDate>` and a static `octopus.periods.current` alias, including slot-split metrics.
    
 2. **Inexogy:**
@@ -66,6 +65,15 @@ To install this adapter in your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (tipp88) Added 30-second timeout to all axios HTTP calls to prevent adapter hangs on unresponsive APIs.
+* (tipp88) Added server-side validation and clamping for the configurable update interval to prevent Node.js timer overflow.
+* (tipp88) Replaced `setInterval` with chained `setTimeout` to prevent overlapping sync executions.
+* (tipp88) Removed unused `octopusPropertyId` config parameter (dead code — always auto-detected via API).
+* (tipp88) Implemented data retention: history objects older than the configured `retentionDays` are automatically deleted.
+* (tipp88) Fixed i18n label containing German text in English UI (`"Preise sind brutto"` → `"Prices are gross"`).
+* (tipp88) Upgraded `@iobroker/types` devDependency from 7.1.2 to 7.2.2.
+
 ### 0.6.4 (2026-06-22)
 * (tipp88) Evaluated and upgraded `@iobroker/adapter-core` dependency from 3.3.2 to 3.4.1.
 * (tipp88) Changed German adapter title in `io-package.json` to "Octopus Energy Monitor".

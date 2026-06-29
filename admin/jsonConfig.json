@@ -41,17 +41,6 @@
 					"lg": 4,
 					"xl": 4
 				},
-				"octopusPropertyId": {
-					"type": "text",
-					"label": "Property ID (Optional)",
-					"help": "Leave blank to auto-detect. Only set if API detection fails.",
-					"newLine": false,
-					"xs": 12,
-					"sm": 12,
-					"md": 6,
-					"lg": 4,
-					"xl": 4
-				},
 				"billingPeriodStartDay": {
 					"type": "select",
 					"label": "Billing Period Start Day",
@@ -349,7 +338,7 @@
 				},
 				"enwgGridFeesAreGross": {
 					"type": "checkbox",
-					"label": "Preise sind brutto (Prices are gross)",
+					"label": "Prices are gross",
 					"help": "Check if the entered grid fees are gross. Otherwise, they are assumed to be net.",
 					"newLine": false,
 					"xs": 12,
