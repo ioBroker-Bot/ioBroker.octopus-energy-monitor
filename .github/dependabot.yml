@@ -9,7 +9,8 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'cron'
+      cronjob: '14 3 8 * *'
       timezone: 'Europe/Berlin'
     open-pull-requests-limit: 15
     assignees:
@@ -25,7 +26,8 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'cron'
+      cronjob: '42 2 22 * *'
       timezone: 'Europe/Berlin'
     open-pull-requests-limit: 15
     assignees:
