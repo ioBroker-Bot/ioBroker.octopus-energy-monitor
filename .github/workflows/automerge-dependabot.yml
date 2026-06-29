@@ -19,5 +19,5 @@ jobs:
       - name: Check if PR should be auto-merged
         uses: iobroker-bot-orga/action-automerge-dependabot@v1
         with:
-          github-token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
           command: squash and merge
