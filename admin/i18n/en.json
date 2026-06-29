@@ -1,5 +1,4 @@
 {
-    "octopus-energy-monitor adapter settings": "Adapter settings for octopus-energy-monitor",
     "00:00": "00:00",
     "00:15": "00:15",
     "00:30": "00:30",
@@ -150,15 +149,13 @@
     "Historical Sync Days (Default: 30)": "Historical Sync Days (Default: 30)",
     "Inexogy": "Inexogy",
     "Inexogy Login Details": "Inexogy Login Details",
-    "Leave blank to auto-detect. Only set if API detection fails.": "Leave blank to auto-detect. Only set if API detection fails.",
     "Low tariff grid fee (Nachttarif), e.g. 0.0500": "Low tariff grid fee (Nachttarif), e.g. 0.0500",
     "NT (Low Tariff)": "NT (Low Tariff)",
     "NT Grid Fee (€/kWh)": "NT Grid Fee (€/kWh)",
     "Octopus Energy (Kraken)": "Octopus Energy (Kraken)",
     "Octopus Energy Login Details": "Octopus Energy Login Details",
     "Password": "Password",
-    "Preise sind brutto (Prices are gross)": "Preise sind brutto (Prices are gross)",
-    "Property ID (Optional)": "Property ID (Optional)",
+    "Prices are gross": "Prices are gross",
     "ST Grid Fee (€/kWh)": "ST Grid Fee (€/kWh)",
     "Settings": "Settings",
     "Split into 'Go' (0-5h) and Standard Tariff windows": "Split into 'Go' (0-5h) and Standard Tariff windows",
@@ -167,6 +164,7 @@
     "Tariff Type": "Tariff Type",
     "Time Windows (Zeitfenster)": "Time Windows (Zeitfenster)",
     "Update Interval (minutes)": "Update Interval (minutes)",
+    "octopus-energy-monitor adapter settings": "Adapter settings for octopus-energy-monitor",
     "§ 14a EnWG": "§ 14a EnWG",
     "§ 14a EnWG Price Calculation Settings": "§ 14a EnWG Price Calculation Settings"
 }
