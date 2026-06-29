@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.6.4",
+    "version": "0.6.5",
     "news": {
+      "0.6.5": {
+        "en": "Fixed ioBroker repository PR compliance issues (added API timeouts, refactored timer logic, removed dead config, implemented data retention, and updated translation keys).\nUpgraded `@iobroker/types` devDependency to 7.2.2.",
+        "de": "Behebte PR-Compliance-Probleme im ioBroker-Repository (hinzugefügte API-Timeouts, überarbeitete Timerlogik, entfernte tote Konfiguration, implementierte Datenspeicherung und aktualisierte Übersetzungsschlüssel).\nAktualisiert `@iobroker/types` devDependency auf 7.2.2.",
+        "ru": "Исправленные проблемы с соблюдением PR в репозитории ioBroker (добавленные тайм-ауты API, рефакторированная логика таймера, удаленная мертвая конфигурация, реализованное сохранение данных и обновленные ключи перевода).\nОбновленная версия \"@iobroker/types\" до 7.2.2.",
+        "pt": "Problemas de conformidade com PR do repositório ioBroker corrigidos (timeouts de API adicionados, lógica do temporizador refatorado, configuração morta removida, retenção de dados implementada e chaves de tradução atualizadas).\nUpgraded `@iobroker/types` devDependência para 7.2.2.",
+        "nl": "Vaste ioBroker repository PR compliance problemen (toegevoegde API timeouts, refactored timer logica, verwijderde dode config, geïmplementeerde data-retentie, en bijgewerkte vertaalsleutels).\nGeüpgrade naar 7.2.2.",
+        "fr": "Correction des problèmes de conformité du dépôt ioBroker PR (délai d'API ajouté, refactored timer logique, suppression de la configuration morte, mise en œuvre de la conservation des données et mise à jour des clés de traduction).\nMise à jour `@iobroker/types` devDependency au 7.2.2.",
+        "it": "Risolto ioBroker repository problemi di conformità PR (aggiornamento di timeout API, logica timer rifatto, rimossa configurazione morta, ritenzione di dati implementata e chiavi di traduzione aggiornate).\nAggiornato `@iobroker/types` devDependency a 7.2.2.",
+        "es": "Repositorio de ioBroker fijo problemas de cumplimiento de PR (tiempos de API añadidos, lógica de temporizador refactorizado, configuración muerta eliminada, retención de datos implementada y claves de traducción actualizadas).\nUpgraded `@iobroker/types` devDependency to 7.2.2.",
+        "pl": "Naprawiono problemy z przestrzeganiem przez repozytorium jOBroker PR (dodano timeout API, refactored timer logics, usunięto martwą konfigurację, wdrożono retencję danych i zaktualizowano klucze tłumaczeniowe).\nAktualizacja '@ iobroker / types' devendency do 7.2.2.",
+        "uk": "Фіксований ioBroker репозиторійні питання відповідності PR (адресовані формати API, рефакторована логіка таймера, видалена мертва конфігурація, реалізована збереження даних та оновлені ключі перекладу).\nОновлення `@iobroker/types` devDependency до 7.2.2.",
+        "zh-cn": "固定 ioBroker 寄存器 PR 合规性问题(添加 API 超时,重构定时器逻辑,删除死配置,执行数据保存,更新翻译密钥).\n将Xio经纪人/型号的依赖性提高到7.2.2."
+      },
       "0.6.4": {
         "en": "Evaluated and upgraded `@iobroker/adapter-core` dependency from 3.3.2 to 3.4.1.\nChanged German adapter title in `io-package.json` to \"Octopus Energy Monitor\".",
         "de": "Die Abhängigkeit `@iobroker/adapter-core` wurde von Version 3.3.2 auf 3.4.1 evaluiert und aktualisiert.\nDer deutsche Adaptertitel in der `io-package.json` wurde in \"Octopus Energy Monitor\" geändert.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono ustawienie \"splitGoTaryfa\", aby egzekwować podział taryfowy \"Go\", nawet jeśli API nie zapewnia okien czasowych.",
         "uk": "Виправлено 'splitGoTariff' налаштування для забезпечення 'Go' розщеплення тарифу навіть якщо API не передбачено часових вікон.",
         "zh-cn": "固定“ splitGoTariff” 设置以强制执行“ Go” 关税分割, 即使API 不提供时间窗口 ."
-      },
-      "0.5.4": {
-        "en": "Activate automated release workflow with Trusted Publishing and Sentry integration.",
-        "de": "Aktivieren Sie automatisierten Release-Workflow mit Trusted Publishing und Sentry Integration.",
-        "ru": "Активировать автоматизированный рабочий процесс выпуска с помощью интеграции Trusted Publishing и Sentry.",
-        "pt": "Ative o fluxo de trabalho de liberação automatizado com integração de Publicação e Sentry confiáveis.",
-        "nl": "Activeer geautomatiseerde release workflow met Trusted Publishing en Sentry integratie.",
-        "fr": "Activer le flux de travail automatisé avec l'intégration Trusted Publishing et Sentry.",
-        "it": "Attiva il flusso di lavoro automatizzato di rilascio con l'integrazione Trusted Publishing e Sentry.",
-        "es": "Activar flujo de trabajo de liberación automatizado con la integración de Publicación Confiada y Sentry.",
-        "pl": "Uaktywnij zautomatyzowany strumień pracy wydawnictwa z zaufaną publikacją i integracją Sentry.",
-        "uk": "Активувати автоматизований процес випуску з перевіреною публікацією та інтеграцією Sentry.",
-        "zh-cn": "启动自动发布工作流程,与受托出版和哨兵集成."
       }
     },
     "titleLang": {
