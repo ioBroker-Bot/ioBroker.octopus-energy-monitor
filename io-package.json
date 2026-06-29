@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "octopus-energy-monitor",
-    "version": "0.6.5",
+    "version": "0.6.6",
     "news": {
+      "0.6.6": {
+        "en": "Adapter requires admin >= 7.8.23 now.",
+        "de": "Adapter erfordert admin >= 7.8.23 jetzt.",
+        "ru": "Адаптер требует администратора >= 7.8.23.",
+        "pt": "Adaptador requer administrador >= 7.8.23 agora.",
+        "nl": "Voor adapter is admin < 7.8.23 nodig.",
+        "fr": "Adaptateur nécessite admin >= 7.8.23 maintenant.",
+        "it": "L'adattatore richiede ora admin >= 7.8.23.",
+        "es": "El adaptador requiere admin= 7.8.23 ahora.",
+        "pl": "Adapter wymaga admin > = 7.8.23 teraz.",
+        "uk": "Адаптер вимагає адміністратора >= 7.8.23 тепер.",
+        "zh-cn": "适配器需要管理员 \\ 7.8.23现在."
+      },
       "0.6.5": {
         "en": "Fixed ioBroker repository PR compliance issues (added API timeouts, refactored timer logic, removed dead config, implemented data retention, and updated translation keys).\nUpgraded `@iobroker/types` devDependency to 7.2.2.",
         "de": "Behebte PR-Compliance-Probleme im ioBroker-Repository (hinzugefügte API-Timeouts, überarbeitete Timerlogik, entfernte tote Konfiguration, implementierte Datenspeicherung und aktualisierte Übersetzungsschlüssel).\nAktualisiert `@iobroker/types` devDependency auf 7.2.2.",
@@ -80,19 +93,6 @@
         "pl": "Dodano opcję ustawiania dnia rozpoczęcia niestandardowego okresu rozliczeniowego, z automatyczną kalkulacją, standardowymi miernikami slot- split i agregacją pod dynamicznym drzewem 'octopus.periodyses'.\nWdrożona kontrola kompletności dla okresów rozliczeniowych: okresy są zapisywane do drzewa obiektów tylko wtedy, gdy wszystkie wymagane dzienne punkty danych są obecne w bazie danych historii.\nZintegrowana miesięczna opłata stała (\"miesięczna opłata standingCharge\") z Kraken GraphQL API za pośrednictwem aktywnego identyfikatora umowy taryfowej, z proporcjonalną kalkulacją kosztów dodaną do okresów rozliczeniowych i do bieżącego miesiąca kalendarzowego.\nDodano opcjonalny § 14a EnWG cenowe wsparcie kalkulacyjne z okien czasu NT / ST / HT, niestandardowe opłaty za siatkę i automatyczne retroaktywne ponowne obliczanie.\nZmienione wsparcie § 14a EnWG: stany EnWG są tworzone tylko wtedy, gdy jest włączone ustawienie, uproszczone wejścia opłat sieciowych do przełączania brutto / netto oraz stałe kolumny tabeli konfiguracji okna czasu.\nPrzesunięty okresowy adapter uruchamia dzienniki z poziomu info do poziomu debugowania.",
         "uk": "Додана опція настроювання початкового дня, з автоматичним обчисленням, стандартними метриками, агрегацією під динамічним `octopus.periods`.\nВпроваджено перевірку повноти за розрахункові періоди: періоди тільки письмові на дерево об'єкта, якщо всі необхідні пункти даних присутні в історичній базі даних.\nІнтегрований щомісячний стоячий платіж (`monthlyStandingCharge`) від Kraken GraphQL API через активний ідентифікатор договору з тарифами, з пропорційним розрахунокм вартості, доданий як вексельний період, так і в поточний календарний місяць.\nДодана додаткова підтримка розрахунку ціни §14a EnWG з NT/ST/HT часовими вікнами, плата за користувацьку сітку та автоматична рекалькуляція.\nРефакторована підтримка §14a EnWG: Країни EnWG створюються лише при встановленні ввімкнено, спрощені вхідні плати сітки до валового / мережевого перемикача, а також фіксовані часові панелі конфігурації таблиці.\nПереміщений періодичний перехідник запускає колоди з інформації на рівень відключення.",
         "zh-cn": "添加了设置自定义计费期起始日的选项, 自动计算、 标准插槽分量度, 并在动态“ 章鱼. 期” 树下汇总 .\n已执行的计费期完整性检查:只有在历史数据库中包含所有所需的每日数据点时,才将时段写入对象树.\nKraken GraphQL API通过现行关税协议ID提供的综合月长期收费(`月常务主管 ' ),同时在计费期和本日历月增加比例成本计算.\n添加了可选的§14a EnWG价格计算支持与NT/ST/HT时间窗口,自定义网格收费,以及自动追溯重新计算.\n重构 §14a EnWG 支持: EnWG 状态只有在设置启用时才会创建,简化网格收费输入为毛/网切,以及固定的时间窗口配置表列.\n将定期适配器运行日志从信息到调试级别."
-      },
-      "0.5.5": {
-        "en": "Fixed 'splitGoTariff' setting to enforce 'Go' tariff splitting even if the API does not provide time windows.",
-        "de": "Behobene 'splitGoTariff'-Einstellung, um 'Go' Tarifteilung durchzusetzen, auch wenn die API keine Zeitfenster bietet.",
-        "ru": "Фиксированная настройка «splitGoTariff» для обеспечения разделения тарифов «Go», даже если API не предоставляет временные окна.",
-        "pt": "Fixo a configuração 'splitGoTariff' para forçar a divisão de tarifas 'Go' mesmo que a API não forneça janelas de tempo.",
-        "nl": "Vaste 'splitGoTariff' instelling om 'Go' tariefsplitsing af te dwingen, zelfs als de API geen tijdvensters biedt.",
-        "fr": "Correction du paramètre 'splitGoTariff' pour imposer le fractionnement tarifaire 'Go' même si l'API ne fournit pas de fenêtres de temps.",
-        "it": "Impostazione fissa 'splitGoTariff' per far rispettare la divisione tariffaria 'Go' anche se l'API non fornisce finestre temporali.",
-        "es": "Fijación 'splitGoTariff' para imponer la división arancelaria 'Go' incluso si la API no proporciona ventanas de tiempo.",
-        "pl": "Naprawiono ustawienie \"splitGoTaryfa\", aby egzekwować podział taryfowy \"Go\", nawet jeśli API nie zapewnia okien czasowych.",
-        "uk": "Виправлено 'splitGoTariff' налаштування для забезпечення 'Go' розщеплення тарифу навіть якщо API не передбачено часових вікон.",
-        "zh-cn": "固定“ splitGoTariff” 设置以强制执行“ Go” 关税分割, 即使API 不提供时间窗口 ."
       }
     },
     "titleLang": {
