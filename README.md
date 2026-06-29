@@ -66,13 +66,8 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 
 ## Changelog
 ### **WORK IN PROGRESS**
-* (tipp88) Added 30-second timeout to all axios HTTP calls to prevent adapter hangs on unresponsive APIs.
-* (tipp88) Added server-side validation and clamping for the configurable update interval to prevent Node.js timer overflow.
-* (tipp88) Replaced `setInterval` with chained `setTimeout` to prevent overlapping sync executions.
-* (tipp88) Removed unused `octopusPropertyId` config parameter (dead code — always auto-detected via API).
-* (tipp88) Implemented data retention: history objects older than the configured `retentionDays` are automatically deleted.
-* (tipp88) Fixed i18n label containing German text in English UI (`"Preise sind brutto"` → `"Prices are gross"`).
-* (tipp88) Upgraded `@iobroker/types` devDependency from 7.1.2 to 7.2.2.
+* (tipp88) Fixed ioBroker repository PR compliance issues (added API timeouts, refactored timer logic, removed dead config, implemented data retention, and updated translation keys).
+* (tipp88) Upgraded `@iobroker/types` devDependency to 7.2.2.
 
 ### 0.6.4 (2026-06-22)
 * (tipp88) Evaluated and upgraded `@iobroker/adapter-core` dependency from 3.3.2 to 3.4.1.
