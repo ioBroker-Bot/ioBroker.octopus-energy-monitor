@@ -65,7 +65,7 @@ To install this adapter in your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.6.7 (2026-07-01)
 * (tipp88) Fixed missing external object ID sanitization (ioBroker repo compliance).
 * (tipp88) Enforced a 15-minute minimum for `updateInterval` to prevent excessive cloud polling.
 * (tipp88) Refactored `fetchInexogy` and optimized object scanning overhead during history aggregation.
@@ -85,11 +85,6 @@ Once configured, the adapter handles the rest! It sets an internal Cronjob scali
 ### 0.6.3 (2026-06-11)
 * (tipp88) Fixed repository compliance issues by removing custom GitHub/NPM installation instructions from README.md.
 * (tipp88) Upgraded dependencies (axios to ^1.17.0, @tsconfig/node22 to ^22.0.5).
-
-### 0.6.2 (2026-06-08)
-* (tipp88) Upgraded out-of-date devDependencies (including typescript to ~6.0.3) and updated TSConfig base reference to Node 22.
-* (tipp88) Adjusted CI test matrix to test Node 22 and 24 (dropping unsupported Node 20).
-* (tipp88) Excluded unit test files from TypeScript typecheck scope and Fixed a time-dependent unit test bug in `main.test.js` by mocking global Date.
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 
