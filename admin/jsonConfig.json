@@ -221,7 +221,8 @@
 				"updateInterval": {
 					"type": "number",
 					"label": "Update Interval (minutes)",
-					"min": 1,
+					"min": 15,
+					"help": "Polling frequency. Recommended: 15-60 min. Warning: Values below 15 min cause excessive API calls and high CPU load during data aggregation.",
 					"newLine": false,
 					"xs": 12,
 					"sm": 12,

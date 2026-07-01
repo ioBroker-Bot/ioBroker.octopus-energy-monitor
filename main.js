@@ -75,7 +75,7 @@ class EnergyCompare extends utils.Adapter {
 
 		const MAX_INTERVAL_MS = 2147483647;
 		const intervalMinutes = Math.max(
-			1,
+			15,
 			Math.min(Number(this.config.updateInterval) || 60, Math.floor(MAX_INTERVAL_MS / 60000)),
 		);
 		this.log.info(`Scheduling data sync every ${intervalMinutes} minutes.`);
@@ -99,9 +99,9 @@ class EnergyCompare extends utils.Adapter {
 		}, 5000);
 	}
 
-	async cleanupLegacyHistory() {
+	async cleanupLegacyHistory(adapterObjects) {
+		const objects = adapterObjects || (await this.getAdapterObjectsAsync());
 		this.log.debug('Checking for legacy history.YYYY-MM-DD objects...');
-		const objects = await this.getAdapterObjectsAsync();
 		const historyPrefix = `${this.namespace}.history.`;
 		for (const id of Object.keys(objects)) {
 			if (id.startsWith(historyPrefix)) {
@@ -1025,6 +1025,12 @@ class EnergyCompare extends utils.Adapter {
 		return null;
 	}
 
+	async fetchInexogyRangeConsumption(meterId, headers, fromDate, toDate) {
+		const url = `https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${fromDate.getTime()}&to=${toDate.getTime()}`;
+		const res = await axios.get(url, { headers, validateStatus: () => true, timeout: AXIOS_TIMEOUT });
+		return this.parseInexogyData(res);
+	}
+
 	async fetchInexogy(start, end) {
 		try {
 			if (!this.masterData) {
@@ -1052,9 +1058,7 @@ class EnergyCompare extends utils.Adapter {
 			const headers = { Authorization: `Basic ${basicAuth}` };
 
 			if (!isSplit) {
-				const url = `https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${start.getTime()}&to=${end.getTime()}`;
-				const dataRes = await axios.get(url, { headers, validateStatus: () => true, timeout: AXIOS_TIMEOUT });
-				const total = this.parseInexogyData(dataRes);
+				const total = await this.fetchInexogyRangeConsumption(meterId, headers, start, end);
 				if (total !== null) {
 					let slots = {};
 					slots[this.masterData.rates[0].name] = { consumption: total };
@@ -1083,14 +1087,7 @@ class EnergyCompare extends utils.Adapter {
 						} else {
 							eTime.setHours(Math.floor(seg.toMin / 60), seg.toMin % 60, 0, 0);
 						}
-
-						const url = `https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${sTime.getTime()}&to=${eTime.getTime()}`;
-						const res = await axios.get(url, {
-							headers,
-							validateStatus: () => true,
-							timeout: AXIOS_TIMEOUT,
-						});
-						consumption += this.parseInexogyData(res) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, sTime, eTime)) || 0;
 					}
 					result.enwgSlots[tariffName] = { consumption };
 					result.total += consumption;
@@ -1106,33 +1103,19 @@ class EnergyCompare extends utils.Adapter {
 						sTime.setHours(fromH, 0, 0, 0);
 						const eTime = new Date(start.getTime());
 						eTime.setHours(toH, 0, 0, 0);
-						const url = `https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${sTime.getTime()}&to=${eTime.getTime()}`;
-						const res = await axios.get(url, {
-							headers,
-							validateStatus: () => true,
-							timeout: AXIOS_TIMEOUT,
-						});
-						consumption += this.parseInexogyData(res) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, sTime, eTime)) || 0;
 					} else {
 						const s1 = new Date(start.getTime());
 						s1.setHours(0, 0, 0, 0);
 						const e1 = new Date(start.getTime());
 						e1.setHours(toH, 0, 0, 0);
-						const res1 = await axios.get(
-							`https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${s1.getTime()}&to=${e1.getTime()}`,
-							{ headers, validateStatus: () => true, timeout: AXIOS_TIMEOUT },
-						);
-						consumption += this.parseInexogyData(res1) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, s1, e1)) || 0;
 
 						const s2 = new Date(start.getTime());
 						s2.setHours(fromH, 0, 0, 0);
 						const e2 = new Date(start.getTime());
 						e2.setHours(24, 0, 0, 0);
-						const res2 = await axios.get(
-							`https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${s2.getTime()}&to=${e2.getTime()}`,
-							{ headers, validateStatus: () => true, timeout: AXIOS_TIMEOUT },
-						);
-						consumption += this.parseInexogyData(res2) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, s2, e2)) || 0;
 					}
 					result.slots[rate.name] = { consumption };
 				}
@@ -1147,35 +1130,20 @@ class EnergyCompare extends utils.Adapter {
 						sTime.setHours(fromH, 0, 0, 0);
 						const eTime = new Date(start.getTime());
 						eTime.setHours(toH, 0, 0, 0);
-						const url = `https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${sTime.getTime()}&to=${eTime.getTime()}`;
-						const res = await axios.get(url, {
-							headers,
-							validateStatus: () => true,
-							timeout: AXIOS_TIMEOUT,
-						});
-						consumption += this.parseInexogyData(res) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, sTime, eTime)) || 0;
 					} else {
 						const s1 = new Date(start.getTime());
 						s1.setHours(0, 0, 0, 0);
 						const e1 = new Date(start.getTime());
 						e1.setHours(toH, 0, 0, 0);
-						const res1 = await axios.get(
-							`https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${s1.getTime()}&to=${e1.getTime()}`,
-							{ headers, validateStatus: () => true, timeout: AXIOS_TIMEOUT },
-						);
-						consumption += this.parseInexogyData(res1) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, s1, e1)) || 0;
 
 						const s2 = new Date(start.getTime());
 						s2.setHours(fromH, 0, 0, 0);
 						const e2 = new Date(start.getTime());
 						e2.setHours(24, 0, 0, 0);
-						const res2 = await axios.get(
-							`https://api.inexogy.com/public/v1/statistics?meterId=${meterId}&from=${s2.getTime()}&to=${e2.getTime()}`,
-							{ headers, validateStatus: () => true, timeout: AXIOS_TIMEOUT },
-						);
-						consumption += this.parseInexogyData(res2) || 0;
+						consumption += (await this.fetchInexogyRangeConsumption(meterId, headers, s2, e2)) || 0;
 					}
-
 					result.slots[rate.name] = { consumption };
 					result.total += consumption;
 				}
@@ -1333,7 +1301,8 @@ class EnergyCompare extends utils.Adapter {
 					if (!device.id) {
 						continue;
 					}
-					const basePath = `octopus.devices.${device.id}`;
+					const safeDeviceId = String(device.id).replace(/[^a-zA-Z0-9-_]/g, '_');
+					const basePath = `octopus.devices.${safeDeviceId}`;
 
 					await this.setObjectNotExistsAsync(`octopus.devices`, {
 						type: 'channel',
@@ -1801,20 +1770,22 @@ class EnergyCompare extends utils.Adapter {
 			// Reset config changed flag since we finished the sync
 			this.enwgConfigChanged = false;
 
+			// Fetch objects once for all aggregation/cleanup steps to reduce overhead
+			const adapterObjects = await this.getAdapterObjectsAsync();
+
 			// Aggregate hierarchical data
-			await this.aggregateHistory();
+			await this.aggregateHistory(adapterObjects);
 
 			// Update JSONs
-			await this.updateHistoryJson();
+			await this.updateHistoryJson(adapterObjects);
 
 			// 3. Update meter reading
 			const lastOfficialReading = await this.fetchOctopusMeterReadings();
 			if (lastOfficialReading) {
 				let totalSinceLastReading = 0;
-				const objectsForSum = await this.getAdapterObjectsAsync();
 				const historyPrefixForSum = `${this.namespace}.history.`;
 
-				for (const id of Object.keys(objectsForSum)) {
+				for (const id of Object.keys(adapterObjects)) {
 					if (id.startsWith(historyPrefixForSum)) {
 						const relativeId = id.substring(historyPrefixForSum.length);
 						const parts = relativeId.split('.');
@@ -1852,7 +1823,7 @@ class EnergyCompare extends utils.Adapter {
 		}
 	}
 
-	async applyDataRetention() {
+	async applyDataRetention(adapterObjects) {
 		const retentionDays = Number(this.config.retentionDays) || 0;
 		if (retentionDays <= 0) {
 			return;
@@ -1863,7 +1834,7 @@ class EnergyCompare extends utils.Adapter {
 		cutoff.setDate(cutoff.getDate() - retentionDays);
 		cutoff.setHours(0, 0, 0, 0);
 
-		const objects = await this.getAdapterObjectsAsync();
+		const objects = adapterObjects || (await this.getAdapterObjectsAsync());
 		const historyPrefix = `${this.namespace}.history.`;
 
 		// Collect day-level date strings (YYYY.MM.DD) that are older than cutoff
@@ -1905,15 +1876,18 @@ class EnergyCompare extends utils.Adapter {
 					const dateKey = `${parts[0]}.${parts[1]}.${parts[2]}`;
 					if (oldDates.has(dateKey)) {
 						await this.delObjectAsync(id.substring(this.namespace.length + 1));
+						if (adapterObjects) {
+							delete adapterObjects[id];
+						}
 					}
 				}
 			}
 		}
 	}
 
-	async aggregateHistory() {
+	async aggregateHistory(adapterObjects) {
 		this.log.debug('Aggregating hierarchical history...');
-		const objects = await this.getAdapterObjectsAsync();
+		const objects = adapterObjects || (await this.getAdapterObjectsAsync());
 		const historyPrefix = `${this.namespace}.history.`;
 
 		const yearMap = {}; // year -> { consumption, cost, months: { month -> { consumption, cost } } }
@@ -2271,9 +2245,9 @@ class EnergyCompare extends utils.Adapter {
 		}
 	}
 
-	async updateHistoryJson() {
+	async updateHistoryJson(adapterObjects) {
 		this.log.debug('Updating history JSON arrays...');
-		const objects = await this.getAdapterObjectsAsync();
+		const objects = adapterObjects || (await this.getAdapterObjectsAsync());
 		const historyPrefix = `${this.namespace}.history.`;
 
 		const dates = new Set();

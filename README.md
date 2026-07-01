@@ -12,7 +12,7 @@
 
 ## ioBroker.octopus-energy-monitor
 
-The **Octopus Energy Monitor** adapter periodically fetches daily electricity consumption data from **Octopus Energy (Kraken API)** and **Inexogy (Discovergy/Statistics API)**, saving it automatically within your ioBroker object tree.
+The **Octopus Energy Monitor** adapter periodically fetches daily electricity consumption data from **[Octopus Energy](https://octopus.energy) (Kraken API)** and **[Inexogy](https://www.inexogy.com) (Discovergy/Statistics API)**, saving it automatically within your ioBroker object tree.
 
 Its key purpose is identifying discrepancies in billing/measurement between your intelligent smart meter (Inexogy) and your energy supplier (Octopus Energy). Every night, the adapter compares both datasets and flags daily discrepancies that exceed a configurable threshold mathematically.
 
@@ -65,6 +65,11 @@ To install this adapter in your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (tipp88) Fixed missing external object ID sanitization (ioBroker repo compliance).
+* (tipp88) Enforced a 15-minute minimum for `updateInterval` to prevent excessive cloud polling.
+* (tipp88) Refactored `fetchInexogy` and optimized object scanning overhead during history aggregation.
+
 ### 0.6.6 (2026-06-29)
 * (ioBroker-Bot) Adapter requires admin >= 7.8.23 now.
 
