@@ -1488,6 +1488,12 @@ class EnergyCompare extends utils.Adapter {
 	async syncData() {
 		await this.cleanupLegacyHistory();
 		let syncDays = Number(this.config.syncDays) || 30;
+		const retentionDays = Number(this.config.retentionDays) || 0;
+
+		if (retentionDays > 0 && syncDays > retentionDays) {
+			this.log.warn(`Sync period (${syncDays} days) exceeds retention period (${retentionDays} days). Capping sync period to ${retentionDays} days to avoid fetching data that will be immediately deleted.`);
+			syncDays = retentionDays;
+		}
 
 		if (this.enwgEnabled && this.config.enwgStartDate) {
 			const startParts = this.config.enwgStartDate.split('-');
@@ -1502,10 +1508,14 @@ class EnergyCompare extends utils.Adapter {
 				if (diffTime > 0) {
 					const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 					if (diffDays > syncDays) {
-						this.log.info(
-							`§14a EnWG start date is ${diffDays} days ago. Extending sync period from ${syncDays} to ${diffDays} days to recalculate history.`,
-						);
-						syncDays = diffDays;
+						let newSyncDays = diffDays;
+						if (retentionDays > 0 && newSyncDays > retentionDays) {
+							newSyncDays = retentionDays;
+							this.log.info(`§14a EnWG start date is ${diffDays} days ago, but sync period extension is capped by retention policy to ${retentionDays} days.`);
+						} else {
+							this.log.info(`§14a EnWG start date is ${diffDays} days ago. Extending sync period from ${syncDays} to ${diffDays} days to recalculate history.`);
+						}
+						syncDays = Math.max(syncDays, newSyncDays);
 					}
 				}
 			}
