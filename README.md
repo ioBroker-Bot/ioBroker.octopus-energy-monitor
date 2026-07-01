@@ -65,6 +65,9 @@ To install this adapter in your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (tipp88) Fixed missing UI translations for the `updateInterval` minimum warning.
+
 ### 0.6.7 (2026-07-01)
 * (tipp88) Fixed missing external object ID sanitization (ioBroker repo compliance).
 * (tipp88) Enforced a 15-minute minimum for `updateInterval` to prevent excessive cloud polling.
