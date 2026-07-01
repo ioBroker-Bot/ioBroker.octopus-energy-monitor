@@ -1491,7 +1491,9 @@ class EnergyCompare extends utils.Adapter {
 		const retentionDays = Number(this.config.retentionDays) || 0;
 
 		if (retentionDays > 0 && syncDays > retentionDays) {
-			this.log.warn(`Sync period (${syncDays} days) exceeds retention period (${retentionDays} days). Capping sync period to ${retentionDays} days to avoid fetching data that will be immediately deleted.`);
+			this.log.warn(
+				`Sync period (${syncDays} days) exceeds retention period (${retentionDays} days). Capping sync period to ${retentionDays} days to avoid fetching data that will be immediately deleted.`,
+			);
 			syncDays = retentionDays;
 		}
 
@@ -1511,9 +1513,13 @@ class EnergyCompare extends utils.Adapter {
 						let newSyncDays = diffDays;
 						if (retentionDays > 0 && newSyncDays > retentionDays) {
 							newSyncDays = retentionDays;
-							this.log.info(`§14a EnWG start date is ${diffDays} days ago, but sync period extension is capped by retention policy to ${retentionDays} days.`);
+							this.log.info(
+								`§14a EnWG start date is ${diffDays} days ago, but sync period extension is capped by retention policy to ${retentionDays} days.`,
+							);
 						} else {
-							this.log.info(`§14a EnWG start date is ${diffDays} days ago. Extending sync period from ${syncDays} to ${diffDays} days to recalculate history.`);
+							this.log.info(
+								`§14a EnWG start date is ${diffDays} days ago. Extending sync period from ${syncDays} to ${diffDays} days to recalculate history.`,
+							);
 						}
 						syncDays = Math.max(syncDays, newSyncDays);
 					}
