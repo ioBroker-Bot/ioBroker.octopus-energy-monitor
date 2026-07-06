@@ -16,6 +16,10 @@ class EnergyCompare extends utils.Adapter {
 		this.inexogyMeterId = null;
 	}
 
+	sanitizeIdSegment(raw) {
+		return String(raw).replace(/[^a-zA-Z0-9-_]/g, '_');
+	}
+
 	async onReady() {
 		this.log.info('Starting Octopus Energy Monitor Adapter');
 
@@ -339,7 +343,7 @@ class EnergyCompare extends utils.Adapter {
 
 		for (const rate of data.rates) {
 			await this.writeStateObject(
-				`octopus.info.rates.${rate.name.toLowerCase()}`,
+				`octopus.info.rates.${this.sanitizeIdSegment(rate.name).toLowerCase()}`,
 				`Rate ${rate.name} (€/kWh)`,
 				parseFloat(rate.rateEuros.toFixed(4)),
 				'value',
@@ -1301,7 +1305,7 @@ class EnergyCompare extends utils.Adapter {
 					if (!device.id) {
 						continue;
 					}
-					const safeDeviceId = String(device.id).replace(/[^a-zA-Z0-9-_]/g, '_');
+					const safeDeviceId = this.sanitizeIdSegment(device.id);
 					const basePath = `octopus.devices.${safeDeviceId}`;
 
 					await this.setObjectNotExistsAsync(`octopus.devices`, {
@@ -1315,6 +1319,7 @@ class EnergyCompare extends utils.Adapter {
 						native: {},
 					});
 
+					await this.writeStateObject(`${basePath}.deviceId`, 'API Device ID', device.id, 'text', 'string');
 					await this.writeStateObject(`${basePath}.name`, 'Device Name', device.name || '', 'text', 'string');
 					await this.setObjectNotExistsAsync(`${basePath}.refresh`, {
 						type: 'state',
@@ -1472,11 +1477,16 @@ class EnergyCompare extends utils.Adapter {
 			const prefix = `${this.namespace}.octopus.devices.`;
 			if (id.startsWith(prefix) && id.endsWith('.smartChargeActive')) {
 				const parts = id.split('.');
-				const deviceId = parts[parts.length - 2];
+				const safeDeviceId = parts[parts.length - 2];
 				const action = state.val ? 'UNSUSPEND' : 'SUSPEND';
 
-				this.log.info(`User requested smart charge action ${action} for device ${deviceId}`);
-				await this.setSmartChargeStatus(deviceId, action);
+				const deviceIdState = await this.getStateAsync(
+					`${this.namespace}.octopus.devices.${safeDeviceId}.deviceId`,
+				);
+				const originalDeviceId = deviceIdState && deviceIdState.val ? String(deviceIdState.val) : safeDeviceId;
+
+				this.log.info(`User requested smart charge action ${action} for device ${originalDeviceId}`);
+				await this.setSmartChargeStatus(originalDeviceId, action);
 			} else if (id.startsWith(prefix) && id.endsWith('.refresh')) {
 				this.log.info(`User requested manual refresh for Octopus devices`);
 				await this.fetchOctopusDevices();
@@ -1486,7 +1496,8 @@ class EnergyCompare extends utils.Adapter {
 	}
 
 	async syncData() {
-		await this.cleanupLegacyHistory();
+		const adapterObjects = await this.getAdapterObjectsAsync();
+		await this.cleanupLegacyHistory(adapterObjects);
 		let syncDays = Number(this.config.syncDays) || 30;
 		const retentionDays = Number(this.config.retentionDays) || 0;
 
@@ -1632,7 +1643,7 @@ class EnergyCompare extends utils.Adapter {
 						);
 
 						for (const [slotName, slotData] of Object.entries(octopusData.slots)) {
-							const safeName = slotName.toLowerCase();
+							const safeName = this.sanitizeIdSegment(slotName).toLowerCase();
 							await this.writeStateObject(
 								`${basePathDay}.octopus.${safeName}Consumption`,
 								`Consumption ${slotName}`,
@@ -1650,7 +1661,7 @@ class EnergyCompare extends utils.Adapter {
 
 						if (octopusData.enwgSlots) {
 							for (const [slotName, slotData] of Object.entries(octopusData.enwgSlots)) {
-								const safeName = slotName.toLowerCase();
+								const safeName = this.sanitizeIdSegment(slotName).toLowerCase();
 								await this.writeStateObject(
 									`${basePathDay}.octopus.${safeName}Consumption`,
 									`Consumption EnWG ${slotName}`,
@@ -1675,7 +1686,7 @@ class EnergyCompare extends utils.Adapter {
 							}
 						} else if (this.enwgEnabled) {
 							for (const slotName of ['NT', 'ST', 'HT']) {
-								const safeName = slotName.toLowerCase();
+								const safeName = this.sanitizeIdSegment(slotName).toLowerCase();
 								await this.writeStateObject(
 									`${basePathDay}.octopus.${safeName}Consumption`,
 									`Consumption EnWG ${slotName}`,
@@ -1708,7 +1719,7 @@ class EnergyCompare extends utils.Adapter {
 							);
 
 							for (const [slotName, slotData] of Object.entries(inexogyData.slots)) {
-								const safeName = slotName.toLowerCase();
+								const safeName = this.sanitizeIdSegment(slotName).toLowerCase();
 								await this.writeStateObject(
 									`${basePathDay}.inexogy.${safeName}Consumption`,
 									`Consumption ${slotName}`,
@@ -1725,7 +1736,7 @@ class EnergyCompare extends utils.Adapter {
 
 							if (inexogyData.enwgSlots) {
 								for (const [slotName, slotData] of Object.entries(inexogyData.enwgSlots)) {
-									const safeName = slotName.toLowerCase();
+									const safeName = this.sanitizeIdSegment(slotName).toLowerCase();
 									await this.writeStateObject(
 										`${basePathDay}.inexogy.${safeName}Consumption`,
 										`Consumption EnWG ${slotName}`,
@@ -1742,7 +1753,7 @@ class EnergyCompare extends utils.Adapter {
 								}
 							} else if (this.enwgEnabled) {
 								for (const slotName of ['NT', 'ST', 'HT']) {
-									const safeName = slotName.toLowerCase();
+									const safeName = this.sanitizeIdSegment(slotName).toLowerCase();
 									await this.writeStateObject(
 										`${basePathDay}.inexogy.${safeName}Consumption`,
 										`Consumption EnWG ${slotName}`,
@@ -1785,9 +1796,6 @@ class EnergyCompare extends utils.Adapter {
 
 			// Reset config changed flag since we finished the sync
 			this.enwgConfigChanged = false;
-
-			// Fetch objects once for all aggregation/cleanup steps to reduce overhead
-			const adapterObjects = await this.getAdapterObjectsAsync();
 
 			// Aggregate hierarchical data
 			await this.aggregateHistory(adapterObjects);
@@ -1833,7 +1841,7 @@ class EnergyCompare extends utils.Adapter {
 			}
 
 			// 4. Apply data retention
-			await this.applyDataRetention();
+			await this.applyDataRetention(adapterObjects);
 		} catch (error) {
 			this.log.error(`Error during syncData: ${error.message}`);
 		}
@@ -1983,7 +1991,7 @@ class EnergyCompare extends utils.Adapter {
 					// Dynamically query slot states
 					if (this.masterData && this.masterData.rates) {
 						for (const rate of this.masterData.rates) {
-							const slotName = rate.name.toLowerCase();
+							const slotName = this.sanitizeIdSegment(rate.name).toLowerCase();
 							const slotConsId = `${historyPrefix}${year}.${month}.${day}.octopus.${slotName}Consumption`;
 							const slotCostId = `${historyPrefix}${year}.${month}.${day}.octopus.${slotName}Cost`;
 
@@ -2300,7 +2308,7 @@ class EnergyCompare extends utils.Adapter {
 
 			if (this.masterData && this.masterData.rates) {
 				for (const rate of this.masterData.rates) {
-					const name = rate.name.toLowerCase();
+					const name = this.sanitizeIdSegment(rate.name).toLowerCase();
 					dayObj[name] = (await this.getStateAsync(`${basePath}.octopus.${name}Consumption`))?.val || 0;
 					dayObj[`${name}Cost`] = (await this.getStateAsync(`${basePath}.octopus.${name}Cost`))?.val || 0;
 				}
@@ -2330,7 +2338,7 @@ class EnergyCompare extends utils.Adapter {
 
 				if (this.masterData && this.masterData.rates) {
 					for (const rate of this.masterData.rates) {
-						const name = rate.name.toLowerCase();
+						const name = this.sanitizeIdSegment(rate.name).toLowerCase();
 						inxDayObj[name] =
 							(await this.getStateAsync(`${basePath}.inexogy.${name}Consumption`))?.val || 0;
 					}

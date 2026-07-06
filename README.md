@@ -65,6 +65,11 @@ To install this adapter in your ioBroker environment:
 Once configured, the adapter handles the rest! It sets an internal Cronjob scaling back 30 days every night. Data manifests under the `octopus-energy-monitor.0.history.YYYY.MM.DD` path.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (tipp88) Fixed `rate.name` from external API being used unsanitized in ioBroker object IDs.
+* (tipp88) Fixed `setSmartChargeStatus()` sending the sanitized device ID to Octopus API instead of original ID.
+* (tipp88) Optimized database interval sync by consolidating all object scans into a single pre-fetch.
+
 ### 0.6.7 (2026-07-01)
 * (tipp88) Fixed missing UI translations for the `updateInterval` minimum warning.
 * (tipp88) Fixed missing external object ID sanitization (ioBroker repo compliance).
