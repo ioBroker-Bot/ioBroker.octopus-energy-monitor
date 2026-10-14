@@ -1945,6 +1945,43 @@ class EnergyCompare extends utils.Adapter {
 						}
 					}
 
+					const comparisonAvailable =
+						!!octopusData &&
+						!!inexogyData &&
+						Number.isFinite(octopusData?.total) &&
+						octopusData.total > 0 &&
+						Number.isFinite(inexogyData?.total) &&
+						inexogyData.total > 0;
+					if (this.hasOctopus && this.hasInexogy) {
+						await this.writeStateObject(
+							`${basePathDay}.comparison.available`,
+							'Comparison Available',
+							comparisonAvailable,
+							'indicator',
+							'boolean',
+						);
+						if (!comparisonAvailable) {
+							const comparisonPrefix = `${this.namespace}.${basePathDay}.comparison.`;
+							for (const id of Object.keys(adapterObjects)) {
+								if (id.startsWith(comparisonPrefix) && id.endsWith('Difference')) {
+									await this.setStateAsync(id, { val: null, ack: true });
+								}
+							}
+							await this.writeStateObject(
+								`${basePathDay}.comparison.difference`,
+								'Absolute Difference',
+								null,
+							);
+							await this.writeStateObject(
+								`${basePathDay}.comparison.hasDiscrepancy`,
+								'Has Discrepancy',
+								null,
+								'indicator',
+								'boolean',
+							);
+						}
+					}
+
 					if (inexogyData) {
 						await this.writeStateObject(
 							`${basePathDay}.inexogy.dailyConsumption`,
@@ -1960,7 +1997,7 @@ class EnergyCompare extends utils.Adapter {
 								parseFloat(slotData.consumption.toFixed(3)),
 							);
 
-							if (octopusData?.slots[slotName]) {
+							if (comparisonAvailable && octopusData?.slots[slotName]) {
 								const diff = Math.abs(octopusData.slots[slotName].consumption - slotData.consumption);
 								await this.writeStateObject(
 									`${basePathDay}.comparison.${safeName}Difference`,
@@ -1979,7 +2016,7 @@ class EnergyCompare extends utils.Adapter {
 									parseFloat(slotData.consumption.toFixed(3)),
 								);
 
-								if (octopusData?.enwgSlots?.[slotName]) {
+								if (comparisonAvailable && octopusData?.enwgSlots?.[slotName]) {
 									const octCons = octopusData.enwgSlots[slotName].consumption;
 									const diff = Math.abs(octCons - slotData.consumption);
 									await this.writeStateObject(
@@ -2000,7 +2037,10 @@ class EnergyCompare extends utils.Adapter {
 							}
 						}
 
-						if (octopusData) {
+						if (comparisonAvailable && octopusData) {
+							const previousDiscrepancy = await this.getStateAsync(
+								`${basePathDay}.comparison.hasDiscrepancy`,
+							);
 							const totalDiff = Math.abs(octopusData.total - inexogyData.total);
 							const threshold = Number(this.config.discrepancyThreshold) || 0.1;
 							await this.writeStateObject(
@@ -2016,7 +2056,7 @@ class EnergyCompare extends utils.Adapter {
 								'boolean',
 							);
 
-							if (totalDiff >= threshold) {
+							if (totalDiff >= threshold && previousDiscrepancy?.val !== true) {
 								this.log.warn(
 									`Discrepancy for ${yearStr}-${monthStr}-${dayStr}! Diff: ${totalDiff.toFixed(3)} kWh`,
 								);

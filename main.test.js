@@ -123,10 +123,83 @@ describe('Independent provider operation', () => {
 		await a.syncData();
 		expect(errors).to.deep.equal([]);
 		expect(Object.keys(states).some(id => id.endsWith('.inexogy.dailyConsumption'))).to.equal(true);
-		expect(Object.keys(states).some(id => id.includes('.comparison.'))).to.equal(false);
+		expect(Object.entries(states).find(([id]) => id.endsWith('.comparison.available'))[1].val).to.equal(false);
 		expect(
 			calls.find(call => call.command === 'storeState').payload.every(point => point.id.includes('.inexogy.')),
 		).to.equal(true);
+	});
+
+	it('keeps refetching zero days without comparing them and clears stale differences', async () => {
+		const { a, states, objects, errors } = fixture(true, true);
+		const warnings = [];
+		a.log.warn = message => warnings.push(message);
+		let requests = 0;
+		const fetch = a.fetchOctopus;
+		a.fetchOctopus = async () => {
+			requests++;
+			return { ...await fetch(), total: 0 };
+		};
+		const day = new Date();
+		day.setDate(day.getDate() - 1);
+		const base = `history.${day.getFullYear()}.${String(day.getMonth() + 1).padStart(2, '0')}.${String(day.getDate()).padStart(2, '0')}.comparison`;
+		states[`${base}.hasDiscrepancy`] = { val: true };
+		states[`${base}.standardDifference`] = { val: 5 };
+		objects[`${a.namespace}.${base}.standardDifference`] = { type: 'state' };
+		await a.syncData();
+		await a.syncData();
+		expect(errors).to.deep.equal([]);
+		expect(requests).to.equal(2);
+		expect(warnings).to.deep.equal([]);
+		expect(states[`${base}.available`].val).to.equal(false);
+		expect(states[`${base}.difference`].val).to.equal(null);
+		expect(states[`${base}.hasDiscrepancy`].val).to.equal(null);
+		expect(states[`${base}.standardDifference`].val).to.equal(null);
+	});
+
+	it('also refetches zero Inexogy days and excludes them from comparisons', async () => {
+		const { a, states, errors } = fixture(true, true);
+		const warnings = [];
+		a.log.warn = message => warnings.push(message);
+		let requests = 0;
+		a.fetchInexogy = async () => {
+			requests++;
+			return { total: 0, slots: {}, rawIntervals: [] };
+		};
+		await a.syncData();
+		await a.syncData();
+		expect(requests).to.equal(2);
+		expect(warnings).to.deep.equal([]);
+		expect(errors).to.deep.equal([]);
+		expect(Object.entries(states).find(([id]) => id.endsWith('.comparison.available'))[1].val).to.equal(false);
+	});
+
+	it('warns only on a persisted transition to a discrepancy, including after restart', async () => {
+		const first = fixture(true, true);
+		const warnings = [];
+		first.a.log.warn = message => warnings.push(message);
+		const fetch = first.a.fetchOctopus;
+		first.a.fetchOctopus = async () => ({ ...await fetch(), total: 3 });
+		await first.a.syncData();
+		expect(warnings).to.have.length(1);
+		const restarted = fixture(true, true);
+		Object.assign(restarted.states, first.states);
+		Object.assign(restarted.objects, first.objects);
+		restarted.a.log.warn = message => warnings.push(message);
+		restarted.a.enwgConfigChanged = true;
+		restarted.a.isEnwgActiveForDate = () => true;
+		const fetchAgain = restarted.a.fetchOctopus;
+		let total = 3;
+		restarted.a.fetchOctopus = async () => ({ ...await fetchAgain(), total });
+		await restarted.a.syncData();
+		expect(warnings).to.have.length(1);
+		total = 2;
+		restarted.a.enwgConfigChanged = true;
+		await restarted.a.syncData();
+		total = 3;
+		restarted.a.enwgConfigChanged = true;
+		await restarted.a.syncData();
+		expect(warnings).to.have.length(2);
+		expect([...first.errors, ...restarted.errors]).to.deep.equal([]);
 	});
 
 	it('continues Octopus when Inexogy returns no readings', async () => {
